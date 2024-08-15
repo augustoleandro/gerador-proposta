@@ -1,5 +1,6 @@
 "use client";
 
+import { signin } from "@/actions/auth/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,23 +26,25 @@ function SignIn() {
           </Label>
           <Input
             id="email"
+            name="email"
             type="email"
             placeholder="Insira seu email @automatize.com.br"
             className="placeholder:text-slate-300 text-slate-800"
           />
         </div>
         <div className="flex flex-col">
-          <Label htmlFor="senha" className="text-primary mb-2">
+          <Label htmlFor="password" className="text-primary mb-2">
             Senha
           </Label>
           <Input
-            id="senha"
+            id="password"
+            name="password"
             type="password"
             placeholder="Insira sua senha..."
             className="placeholder:text-slate-300 text-slate-800"
           />
         </div>
-        <Button type="submit" className="bg-primary text-white">
+        <Button formAction={signin} className="bg-primary text-white">
           Entrar
         </Button>
       </form>
