@@ -4,9 +4,46 @@ import { signin } from "@/actions/auth/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { LogIn } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+import { LoaderCircle, LogIn } from "lucide-react";
+import { useEffect } from "react";
+import { useFormState, useFormStatus } from "react-dom";
+
+function SubmitButton() {
+  const status = useFormStatus();
+  return (
+    <Button type="submit" disabled={status.pending}>
+      {status.pending ? (
+        <>
+          <span className="animate-spin">
+            <LoaderCircle size={16} />
+          </span>
+        </>
+      ) : (
+        "Entrar"
+      )}
+    </Button>
+  );
+}
 
 function SignIn() {
+  const [state, formAction] = useFormState(signin, {
+    error: null,
+  } as { error: string | null });
+
+  const { toast } = useToast();
+
+  useEffect(() => {
+    console.log("State changed:", state);
+    if (state.error) {
+      toast({
+        title: "Erro",
+        description: state.error,
+        variant: "destructive",
+      });
+    }
+  }, [state, toast]);
+
   return (
     <div className="bg-slate-100 rounded-lg px-10 py-6 min-w-96 flex flex-col w-full">
       <div className="flex flex-col gap-4 flex-center">
@@ -19,7 +56,7 @@ function SignIn() {
           Entre com email e senha para efetuar o seu acesso
         </span>
       </div>
-      <form className="flex flex-col w-full mt-6 gap-4">
+      <form action={formAction} className="flex flex-col w-full mt-6 gap-4">
         <div className="flex flex-col">
           <Label htmlFor="email" className="text-primary mb-2">
             Email
@@ -44,9 +81,7 @@ function SignIn() {
             className="placeholder:text-slate-300 text-slate-800"
           />
         </div>
-        <Button formAction={signin} className="bg-primary text-white">
-          Entrar
-        </Button>
+        <SubmitButton />
       </form>
     </div>
   );

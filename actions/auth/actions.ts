@@ -5,7 +5,11 @@ import { redirect } from "next/navigation";
 
 import { createClient } from "@/utils/supabase/server";
 
-export async function signin(formData: FormData) {
+export async function signin(
+  prevState: { error: string | null },
+  formData: FormData
+) {
+  await new Promise((resolve) => setTimeout(resolve, 2000));
   const supabase = createClient();
 
   // type-casting here for convenience
@@ -18,7 +22,7 @@ export async function signin(formData: FormData) {
   const { error } = await supabase.auth.signInWithPassword(data);
 
   if (error) {
-    redirect("/error");
+    return { error: error.message };
   }
 
   revalidatePath("/", "layout");
@@ -43,4 +47,10 @@ export async function signup(formData: FormData) {
 
   revalidatePath("/", "layout");
   redirect("/");
+}
+
+export async function signOut() {
+  const supabase = createClient();
+  await supabase.auth.signOut();
+  redirect("/signin");
 }
