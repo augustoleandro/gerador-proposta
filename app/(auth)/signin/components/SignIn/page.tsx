@@ -67,6 +67,7 @@ function SignIn() {
             type="email"
             placeholder="Insira seu email @automatize.com.br"
             className="placeholder:text-slate-300 text-slate-800"
+            required
           />
         </div>
         <div className="flex flex-col">
@@ -79,6 +80,7 @@ function SignIn() {
             type="password"
             placeholder="Insira sua senha..."
             className="placeholder:text-slate-300 text-slate-800"
+            required
           />
         </div>
         <SubmitButton />
