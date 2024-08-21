@@ -1,10 +1,8 @@
 import { Proposal } from "@/lib/types";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/server";
-import { columns } from "./columns";
-import { DataTable } from "./data-table";
 
-async function getData(): Promise<Proposal[]> {
+export async function getData(): Promise<Proposal[]> {
   const supabase = createClient();
 
   const { data, error } = await supabase.from("proposals").select("*");
@@ -33,8 +31,6 @@ async function getData(): Promise<Proposal[]> {
         })
       );
 
-      console.log(categories);
-
       return {
         ...proposal,
         created_at: formatDate(proposal.created_at || ""),
@@ -46,14 +42,4 @@ async function getData(): Promise<Proposal[]> {
   );
 
   return proposals;
-}
-
-export default async function DemoPage() {
-  const data = await getData();
-
-  return (
-    <div className="container mx-auto py-10">
-      <DataTable columns={columns} data={data} />
-    </div>
-  );
 }

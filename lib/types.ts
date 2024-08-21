@@ -21,3 +21,12 @@ export type Proposal = {
 };
 
 export type Category = "AUT" | "AV" | "RD" | "SEC";
+
+export type BadgeVariant =
+  | "default"
+  | "outline"
+  | "destructive"
+  | "secondary"
+  | "black"
+  | null
+  | undefined;
