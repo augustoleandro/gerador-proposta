@@ -20,7 +20,4 @@ export type Proposal = {
   categories?: number[];
 };
 
-export type Category = {
-  id: string;
-  name: "AUT" | "AV" | "RD" | "SEC";
-};
+export type Category = "AUT" | "AV" | "RD" | "SEC";

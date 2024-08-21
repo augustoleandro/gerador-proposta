@@ -40,7 +40,7 @@ export function DataTable<TData, TValue>({
               {headerGroup.headers.map((header) => {
                 return (
                   <TableHead
-                    className="bg-slate-200 text-center"
+                    className="bg-slate-200 text-right"
                     key={header.id}
                   >
                     {header.isPlaceholder
@@ -61,7 +61,7 @@ export function DataTable<TData, TValue>({
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
-                className="text-center"
+                className="text-right"
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>

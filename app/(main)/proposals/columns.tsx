@@ -1,6 +1,7 @@
 "use client";
 
-import { Proposal } from "@/lib/types";
+import { Badge } from "@/components/ui/badge";
+import { Category, Proposal } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
 
 export const columns: ColumnDef<Proposal>[] = [
@@ -16,6 +17,14 @@ export const columns: ColumnDef<Proposal>[] = [
   {
     accessorKey: "categories",
     header: "Categorias",
+    cell: ({ row }) => {
+      const categories: Category[] = row.getValue("categories");
+      return categories.map((category) => (
+        <Badge key={category} className="mr-1" variant="default">
+          {category}
+        </Badge>
+      ));
+    },
   },
   {
     accessorKey: "total_value",
