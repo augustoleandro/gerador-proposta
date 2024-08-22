@@ -1,9 +1,10 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { BadgeVariant, Category, Proposal } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
-import { Download } from "lucide-react";
+import { ArrowUpDown, Download } from "lucide-react";
 import Link from "next/link";
 
 const CategoryColors: Record<Category, BadgeVariant> = {
@@ -16,7 +17,20 @@ const CategoryColors: Record<Category, BadgeVariant> = {
 export const columns: ColumnDef<Proposal>[] = [
   {
     accessorKey: "customer",
-    header: "Cliente",
+    header: ({ column }) => {
+      return (
+        <div className="flex items-center justify-end">
+          Cliente
+          <Button
+            className="p-2 hover:bg-transparent"
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            <ArrowUpDown className="h-4 w-4" />
+          </Button>
+        </div>
+      );
+    },
   },
   {
     accessorKey: "customer_doc",
