@@ -30,3 +30,9 @@ export type BadgeVariant =
   | "black"
   | null
   | undefined;
+
+export type Order = {
+  orderNumber: string;
+  description: string;
+  value: number;
+};
