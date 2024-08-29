@@ -8,8 +8,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { FormLabel } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import SelectEditable from "@/components/ui/selectEditable";
 import { OrdersTitles } from "@/lib/options";
 import { Order } from "@/lib/types";
@@ -28,7 +28,13 @@ export function EditOrderDialog({
   const [description, setDescription] = useState(order.description);
 
   const handleSave = () => {
-    onSave({ orderNumber: order.orderNumber, value, description });
+    onSave({
+      orderNumber: order.orderNumber,
+      value,
+      description,
+      items: order.items,
+      serviceDescription: order.serviceDescription,
+    });
     setOpen(false);
   };
 
@@ -53,9 +59,9 @@ export function EditOrderDialog({
           </DialogHeader>
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-4">
-              <Label htmlFor="totalValue" className="text-nowrap">
+              <FormLabel htmlFor="totalValue" className="text-nowrap">
                 Valor (R$)
-              </Label>
+              </FormLabel>
               <Input
                 id="totalValue"
                 type="text"
@@ -73,7 +79,7 @@ export function EditOrderDialog({
               />
             </div>
             <div className="flex items-center gap-4">
-              <Label htmlFor="orderTitle">Descrição</Label>
+              <FormLabel htmlFor="orderTitle">Descrição</FormLabel>
               <SelectEditable
                 placeholder="Selecione ou digite..."
                 options={OrdersTitles}

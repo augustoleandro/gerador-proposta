@@ -31,8 +31,15 @@ export type BadgeVariant =
   | null
   | undefined;
 
-export type Order = {
+export type OrderItem = {
+  name: string;
+  quantity: string;
+};
+
+export interface Order {
   orderNumber: string;
   description: string;
   value: number;
-};
+  items: OrderItem[];
+  serviceDescription: string;
+}

@@ -24,78 +24,33 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { ProjectTypes } from "@/lib/options";
 import { Order } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { formProposalSchema } from "@/schemas/formProsposalSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  CalendarIcon,
-  FileTextIcon,
-  Trash2Icon,
-} from "lucide-react";
-import { useState } from "react";
+import { CalendarIcon, FileTextIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { EditOrderDialog } from "./EditOrderDialog";
-import { NewOrderDialog } from "./NewOrderDialog";
-
-const formSchema = z.object({
-  customerName: z
-    .string()
-    .min(2, { message: "Nome deve ter no mínimo 2 caracteres" })
-    .max(50, { message: "Nome deve ter no máximo 50 caracteres" }),
-  propostalDate: z.date({ required_error: "É necessário informar a data." }),
-  orders: z.array(
-    z.object({
-      orderNumber: z
-        .string()
-        .min(1, { message: "Número do pedido é obrigatório." }),
-      description: z.string().min(1, { message: "Descrição é obrigatória." }),
-      value: z
-        .number()
-        .min(0.01, { message: "Valor deve ser maior que zero." }),
-    })
-  ),
-  paymentCondition: z
-    .string()
-    .min(1, { message: "Condição de pagamento é obrigatória." }),
-  executionTime: z
-    .string()
-    .min(1, { message: "Tempo de execução é obrigatório." }),
-  projectType: z.string().min(1, { message: "Tipo de projeto é obrigatório." }),
-  proposalTotalValue: z
-    .number()
-    .min(0.01, { message: "Valor deve ser maior que zero." }),
-});
+import { OrderInput } from "./OrderInput";
+import OrdersTable from "./OrdersTable";
 
 function FormProposal() {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof formProposalSchema>>({
+    resolver: zodResolver(formProposalSchema),
     defaultValues: {
-      customerName: "",
       propostalDate: new Date(),
       orders: [],
       paymentCondition: "Entrada + 02 (duas parcelas) iguais",
       executionTime: "60 dias após liberação pela obra",
       projectType: "Soluções de Tecnologia Residencial",
+      docRevision: "00",
     },
   });
 
-  const [orderNumber, setOrderNumber] = useState<string>("");
-
-  async function onSubmit(data: z.infer<typeof formSchema>) {
+  async function onSubmit(data: z.infer<typeof formProposalSchema>) {
     const formData = new FormData();
     Object.entries(data).forEach(([key, value]) => {
       if (key === "orders") {
@@ -106,13 +61,23 @@ function FormProposal() {
         formData.append(key, value.toString());
       }
     });
-
-    await createProposal(formData);
+    try {
+      const result = await createProposal(formData);
+      console.log("Proposal created successfully:", result);
+      // Adicione aqui a lógica para lidar com o sucesso (ex: mostrar uma mensagem, redirecionar, etc.)
+    } catch (error) {
+      console.error("Error creating proposal:", error);
+      // Adicione aqui a lógica para lidar com o erro (ex: mostrar uma mensagem de erro)
+    }
   }
 
   function addOrder(newOrder: Order) {
+    if (!newOrder.items || newOrder.items.length === 0) {
+      console.error("Tentativa de adicionar pedido sem itens");
+      return;
+    }
     form.setValue("orders", [...form.getValues("orders"), newOrder]);
-    console.log("orders: ", form.getValues("orders"));
+    console.log("Orders: ", form.getValues("orders"));
   }
 
   function removeOrder(orderNumber: string) {
@@ -151,15 +116,20 @@ function FormProposal() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col">
+      <form
+        onSubmit={form.handleSubmit(onSubmit, (errors) =>
+          console.error("Form validation errors:", errors)
+        )}
+        className="flex flex-col"
+      >
         <div className="space-y-4">
-          <div className="flex gap-4">
+          <div className="flex items-end gap-4">
             <FormField
               control={form.control}
               name="customerName"
               render={({ field }) => (
                 <FormItem className="flex-1 flex-col">
-                  <FormLabel className="text-secondary-foreground leading-2">
+                  <FormLabel className="text-secondary-foreground">
                     Nome do cliente:
                   </FormLabel>
                   <FormControl>
@@ -177,7 +147,7 @@ function FormProposal() {
               name="propostalDate"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel className="text-secondary-foreground leading-2">
+                  <FormLabel className="text-secondary-foreground">
                     Data:
                   </FormLabel>
                   <Popover>
@@ -215,6 +185,21 @@ function FormProposal() {
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="docRevision"
+              render={({ field }) => (
+                <FormItem className="flex-1 flex-col max-w-14">
+                  <FormLabel className="text-secondary-foreground">
+                    Rev.:
+                  </FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
           <div>
             <FormField
@@ -222,15 +207,11 @@ function FormProposal() {
               name="projectType"
               render={({ field }) => (
                 <FormItem className="flex-1 flex-col">
-                  <FormLabel className="text-secondary-foreground leading-2">
+                  <FormLabel className="text-secondary-foreground">
                     Finalidade do projeto:
                   </FormLabel>
                   <FormControl>
-                    <Select
-                      defaultValue={field.value}
-                      onValueChange={field.onChange}
-                      {...field}
-                    >
+                    <Select onValueChange={field.onChange} {...field}>
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o tipo de projeto..." />
                       </SelectTrigger>
@@ -254,13 +235,12 @@ function FormProposal() {
               name="paymentCondition"
               render={({ field }) => (
                 <FormItem className="flex-1 flex-col">
-                  <FormLabel className="text-secondary-foreground leading-2">
+                  <FormLabel className="text-secondary-foreground">
                     Condição de pagamento:
                   </FormLabel>
                   <FormControl>
                     <Input
                       placeholder="Digite a condição de pagamento..."
-                      defaultValue={field.value}
                       {...field}
                     />
                   </FormControl>
@@ -273,13 +253,12 @@ function FormProposal() {
               name="executionTime"
               render={({ field }) => (
                 <FormItem className="flex-1 flex-col">
-                  <FormLabel className="text-secondary-foreground leading-2">
+                  <FormLabel className="text-secondary-foreground">
                     Prazo de execução:
                   </FormLabel>
                   <FormControl>
                     <Input
                       placeholder="Digite o prazo de execução..."
-                      defaultValue={field.value}
                       {...field}
                     />
                   </FormControl>
@@ -288,137 +267,30 @@ function FormProposal() {
               )}
             />
           </div>
-          <FormField
-            control={form.control}
-            name="orders"
-            render={({ field }) => (
-              <FormItem className="flex-col w-1/4">
-                <FormLabel className="text-secondary-foreground leading-2">
-                  Adicionar Pedido (OMIE):
-                </FormLabel>
-                <FormControl>
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="Nº do pedido"
-                      {...field}
-                      onChange={(e) => setOrderNumber(e.target.value)}
-                      value={orderNumber}
-                    />
-                    <NewOrderDialog
-                      orderNumber={orderNumber}
-                      totalValue={1000}
-                      onSave={addOrder}
-                      resetOrderNumber={() => setOrderNumber("")}
-                      orders={orders}
-                    />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <div className="mt-4 max-h-[400px] overflow-y-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nº do Pedido</TableHead>
-                  <TableHead>Descrição</TableHead>
-                  <TableHead>Valor (R$)</TableHead>
-                  <TableHead className="w-[100px]">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {orders && orders.length > 0 ? (
-                  <>
-                    {orders.map((order, index) => (
-                      <TableRow key={order.orderNumber}>
-                        <TableCell>
-                          <div className="flex items-center">
-                            <div className="flex items-center h-min mr-2 py-0">
-                              <Button
-                                type="button"
-                                className="bg-transparent hover:bg-transparent disabled:opacity-0 py-0"
-                                size="sm"
-                                onClick={() => moveOrder(index, "up")}
-                                disabled={index === 0}
-                              >
-                                <ArrowUpIcon className="w-3 h-3 text-secondary-foreground hover:text-primary p-0" />
-                              </Button>
-                              <Button
-                                type="button"
-                                className="bg-transparent hover:bg-transparent disabled:opacity-0 p-0"
-                                size="sm"
-                                onClick={() => moveOrder(index, "down")}
-                                disabled={index === orders.length - 1}
-                              >
-                                <ArrowDownIcon className="w-3 h-3 text-secondary-foreground hover:text-primary" />
-                              </Button>
-                            </div>
-                            {order.orderNumber}
-                          </div>
-                        </TableCell>
-                        <TableCell>{order.description}</TableCell>
-                        <TableCell>
-                          {new Intl.NumberFormat("pt-BR", {
-                            style: "currency",
-                            currency: "BRL",
-                          }).format(order.value)}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex justify-end gap-2">
-                            <EditOrderDialog order={order} onSave={editOrder} />
-                            <Button
-                              type="button"
-                              onClick={() => {
-                                console.log("order: ", order.orderNumber);
-                                removeOrder(order.orderNumber);
-                              }}
-                              variant="destructive"
-                              size="sm"
-                            >
-                              <Trash2Icon className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                    <TableRow className="bg-primary/10 hover:bg-primary/10">
-                      <TableCell colSpan={2} className="font-bold text-right">
-                        Total:
-                      </TableCell>
-                      <TableCell className="font-bold">
-                        {(() => {
-                          const proposalTotalValue = orders.reduce(
-                            (sum, order) => sum + order.value,
-                            0
-                          );
-                          form.setValue(
-                            "proposalTotalValue",
-                            proposalTotalValue
-                          );
-                          return new Intl.NumberFormat("pt-BR", {
-                            style: "currency",
-                            currency: "BRL",
-                          }).format(proposalTotalValue);
-                        })()}
-                      </TableCell>
-                      <TableCell></TableCell>
-                    </TableRow>
-                  </>
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={4} className="text-center">
-                      Pedido não adicionado.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
+          <div className="flex-col w-1/4">
+            <FormLabel className="text-secondary-foreground">
+              Adicionar Pedido (OMIE):
+            </FormLabel>
+            <OrderInput
+              onOrderAdded={addOrder}
+              existingOrders={form.getValues("orders") as Order[]}
+            />
           </div>
-          <Button type="submit" className="max-w-32 mt-4">
-            <FileTextIcon className="w-4 h-4 mr-2 text-white" />
-            Gerar proposta
-          </Button>
+          <div className="mt-4 max-h-[400px] overflow-y-auto">
+            <OrdersTable
+              orders={orders as Order[]}
+              moveOrder={moveOrder}
+              editOrder={editOrder}
+              removeOrder={removeOrder}
+              form={form}
+            />
+          </div>
+          <div className="w-full flex justify-center">
+            <Button type="submit" size="lg" className="mt-4">
+              <FileTextIcon className="w-4 h-4 mr-2 text-white" />
+              Gerar proposta
+            </Button>
+          </div>
         </div>
       </form>
     </Form>

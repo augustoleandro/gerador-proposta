@@ -14,7 +14,6 @@ export async function getOrder(orderNumber: string) {
       body: JSON.stringify({ orderNumber }),
     });
     const data = await response.json();
-    console.log("Omie Service: ", data);
     return data;
   } catch (error) {
     console.error("Omie Service Error: ", error);

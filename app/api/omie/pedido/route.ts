@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   const { orderNumber } = await request.json();
-  console.log(orderNumber);
   try {
     const response = await fetch(
       "https://app.omie.com.br/api/v1/produtos/pedido/",

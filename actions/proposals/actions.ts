@@ -6,5 +6,6 @@ export async function createProposal(data: FormData) {
     ...Object.fromEntries(data),
     orders,
   };
-  console.log("data: ", proposalData);
+
+  console.log("Proposta: ", JSON.stringify(proposalData, null, 2));
 }

@@ -8,19 +8,18 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { FormLabel } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import SelectEditable from "@/components/ui/selectEditable";
 import { toast } from "@/components/ui/use-toast";
 import { OrdersTitles } from "@/lib/options";
-import { Order } from "@/lib/types";
+import { Order, OrderItem } from "@/lib/types";
 import { getOrder } from "@/services/omie";
 import { Loader2, PlusIcon } from "lucide-react";
 import { useState } from "react";
 
 export function NewOrderDialog({
   orderNumber,
-  totalValue,
   onSave,
   orders,
   resetOrderNumber,
@@ -32,12 +31,14 @@ export function NewOrderDialog({
   resetOrderNumber: () => void;
 }) {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(totalValue);
+  const [value, setValue] = useState(0.0);
   const [description, setDescription] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [items, setItems] = useState<OrderItem[]>([]);
 
   const handleSave = () => {
-    onSave({ orderNumber, value, description });
+    const serviceDescription = "Serviço";
+    onSave({ orderNumber, value, description, items, serviceDescription });
     setOpen(false);
     setValue(0.0);
     setDescription("");
@@ -86,6 +87,11 @@ export function NewOrderDialog({
       setValue(
         parseFloat(data.pedido_venda_produto.total_pedido.valor_total_pedido)
       );
+      const items = data.pedido_venda_produto.det.map((item: any) => ({
+        name: item.produto.descricao,
+        quantity: String(item.produto.quantidade),
+      }));
+      setItems([...items, ...items]);
       setOpen(true);
     }
     setIsLoading(false);
@@ -96,7 +102,7 @@ export function NewOrderDialog({
       <Button
         type="button"
         onClick={() => handleFetchOrder()}
-        disabled={isLoading}
+        disabled={isLoading || !orderNumber}
       >
         {isLoading ? (
           <Loader2 className="w-4 h-4 animate-spin" />
@@ -115,9 +121,9 @@ export function NewOrderDialog({
           </DialogHeader>
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-4">
-              <Label htmlFor="totalValue" className="text-nowrap">
+              <FormLabel htmlFor="totalValue" className="text-nowrap">
                 Valor (R$)
-              </Label>
+              </FormLabel>
               <Input
                 id="totalValue"
                 type="text"
@@ -135,7 +141,7 @@ export function NewOrderDialog({
               />
             </div>
             <div className="flex items-center gap-4">
-              <Label htmlFor="orderTitle">Descrição</Label>
+              <FormLabel htmlFor="orderTitle">Descrição</FormLabel>
               <SelectEditable
                 placeholder="Selecione ou digite..."
                 options={OrdersTitles}
