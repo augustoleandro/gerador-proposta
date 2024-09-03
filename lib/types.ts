@@ -10,36 +10,36 @@ export type User = {
 
 export type Proposal = {
   id: string;
-  customerName: string;
-  proposalDate: string;
-  proposalTotalValue: number;
-  paymentCondition: string;
-  projectType: string;
-  docRevision: string;
-  executionTime: string;
-  createdAt?: string;
-  updatedAt?: string;
-  docLink?: string;
-  createdBy: string;
+  customer_name: string;
+  proposal_date: string;
+  proposal_total_value: number;
+  payment_condition: string;
+  project_type: string;
+  doc_revision: string;
+  execution_time: string;
+  created_at?: string;
+  updated_at?: string;
+  doc_link?: string;
+  created_by: string;
   orders: Order[];
 };
 
 export interface Order {
-  orderNumber: string;
+  order_number: string;
   description: string;
   value: number;
   items: OrderItem[];
-  serviceDescription: string;
+  service_description: string;
   category: Category;
-  createdAt?: string;
-  updatedAt?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export type OrderItem = {
   name: string;
   quantity: string;
-  createdAt?: string;
-  updatedAt?: string;
+  created_at?: string;
+  updated_at?: string;
 };
 
 export type Category = "AUT" | "AV" | "RD" | "SEC";
@@ -52,3 +52,10 @@ export type BadgeVariant =
   | "black"
   | null
   | undefined;
+
+export const badgeVariants: Record<Category, BadgeVariant> = {
+  AUT: "black",
+  AV: "default",
+  RD: "secondary",
+  SEC: "outline",
+};

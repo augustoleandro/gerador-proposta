@@ -1,4 +1,4 @@
-import FormProposal from "./FormProposal";
+import FormProposal from "../components/FormProposal";
 
 function page() {
   return (

@@ -67,7 +67,8 @@ export function DataTable<TData, TValue>({
           <Input
             placeholder="Procurar por cliente..."
             value={
-              (table.getColumn("customer")?.getFilterValue() as string) ?? ""
+              (table.getColumn("customer_name")?.getFilterValue() as string) ??
+              ""
             }
             onChange={(event) =>
               table.getColumn("customer")?.setFilterValue(event.target.value)
@@ -105,12 +106,17 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className={`h-12 text-right hover:bg-slate-200 ${
-                    row.index % 2 === 1 ? "bg-slate-200" : ""
-                  }`}
+                  className="h-12"
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell
+                      key={cell.id}
+                      className={`${
+                        cell.column.id === "customer_name"
+                          ? "text-left"
+                          : "text-right"
+                      }`}
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()

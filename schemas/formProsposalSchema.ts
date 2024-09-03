@@ -1,14 +1,14 @@
 import { z } from "zod";
 
 export const formProposalSchema = z.object({
-  customerName: z
+  customer_name: z
     .string()
     .min(2, { message: "Nome deve ter no mínimo 2 caracteres" })
     .max(50, { message: "Nome deve ter no máximo 50 caracteres" }),
-  proposalDate: z.date({ required_error: "É necessário informar a data." }),
+  proposal_date: z.date({ required_error: "É necessário informar a data." }),
   orders: z.array(
     z.object({
-      orderNumber: z
+      order_number: z
         .string()
         .min(1, { message: "Número do pedido é obrigatório." }),
       description: z.string().min(1, { message: "Descrição é obrigatória." }),
@@ -25,20 +25,23 @@ export const formProposalSchema = z.object({
           })
         )
         .min(1, { message: "Pelo menos um item é necessário." }),
-      serviceDescription: z
+      service_description: z
         .string()
         .min(2, { message: "Nome deve ter no mínimo 2 caracteres" }),
+      category: z.string().min(1, { message: "Categoria é obrigatória." }),
     })
   ),
-  paymentCondition: z
+  payment_condition: z
     .string()
     .min(1, { message: "Condição de pagamento é obrigatória." }),
-  executionTime: z
+  execution_time: z
     .string()
     .min(1, { message: "Tempo de execução é obrigatório." }),
-  projectType: z.string().min(1, { message: "Tipo de projeto é obrigatório." }),
-  proposalTotalValue: z
+  project_type: z
+    .string()
+    .min(1, { message: "Tipo de projeto é obrigatório." }),
+  proposal_total_value: z
     .number()
     .min(0.01, { message: "Valor deve ser maior que zero." }),
-  docRevision: z.string().min(2, { message: "Revisão é obrigatória." }),
+  doc_revision: z.string().min(2, { message: "Revisão é obrigatória." }),
 });

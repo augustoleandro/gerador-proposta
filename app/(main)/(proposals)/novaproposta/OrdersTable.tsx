@@ -20,7 +20,7 @@ interface OrdersTableProps {
   form: UseFormReturn<z.infer<typeof formProposalSchema>>;
   moveOrder: (index: number, direction: "up" | "down") => void;
   editOrder: (order: Order) => void;
-  removeOrder: (orderNumber: string) => void;
+  removeOrder: (order_number: string) => void;
 }
 
 function OrdersTable({
@@ -44,7 +44,7 @@ function OrdersTable({
         {orders && orders.length > 0 ? (
           <>
             {orders.map((order, index) => (
-              <TableRow key={order.orderNumber}>
+              <TableRow key={order.order_number}>
                 <TableCell>
                   <div className="flex items-center">
                     <div className="flex items-center h-min mr-2 py-0">
@@ -67,7 +67,7 @@ function OrdersTable({
                         <ArrowDownIcon className="w-3 h-3 text-secondary-foreground hover:text-primary" />
                       </Button>
                     </div>
-                    {order.orderNumber}
+                    {order.order_number}
                   </div>
                 </TableCell>
                 <TableCell>{order.description}</TableCell>
@@ -84,7 +84,7 @@ function OrdersTable({
                     <Button
                       type="button"
                       onClick={() => {
-                        removeOrder(order.orderNumber);
+                        removeOrder(order.order_number);
                       }}
                       variant="destructive"
                       size="sm"
@@ -106,7 +106,7 @@ function OrdersTable({
                     0
                   );
                   if (form && typeof form.setValue === "function") {
-                    form.setValue("proposalTotalValue", proposalTotalValue);
+                    form.setValue("proposal_total_value", proposalTotalValue);
                   }
                   return new Intl.NumberFormat("pt-BR", {
                     style: "currency",

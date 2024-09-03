@@ -1,6 +1,6 @@
 "use client";
 
-import { createProposal } from "@/actions/proposals/actions";
+import { createProposal, getProposalById } from "@/actions/proposals/actions";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -32,23 +32,46 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { CalendarIcon, FileTextIcon } from "lucide-react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { OrderInput } from "./OrderInput";
-import OrdersTable from "./OrdersTable";
+import { OrderInput } from "../novaproposta/OrderInput";
+import OrdersTable from "../novaproposta/OrdersTable";
 
-function FormProposal() {
+interface FormProposalProps {
+  proposalId?: string;
+}
+
+function FormProposal({ proposalId }: FormProposalProps) {
   const form = useForm<z.infer<typeof formProposalSchema>>({
     resolver: zodResolver(formProposalSchema),
     defaultValues: {
-      proposalDate: new Date(),
+      proposal_date: new Date(),
       orders: [],
-      paymentCondition: "Entrada + 02 (duas parcelas) iguais",
-      executionTime: "60 dias após liberação pela obra",
-      projectType: "Soluções de Tecnologia Residencial",
-      docRevision: "00",
+      payment_condition: "Entrada + 02 (duas parcelas) iguais",
+      execution_time: "60 dias após liberação pela obra",
+      project_type: "Soluções de Tecnologia Residencial",
+      doc_revision: "00",
     },
   });
+
+  useEffect(() => {
+    async function fetchProposalData() {
+      if (proposalId) {
+        try {
+          const proposalData = await getProposalById(proposalId);
+          console.log("proposalData", proposalData);
+          form.reset({
+            ...proposalData,
+            proposal_date: new Date(proposalData.proposal_date),
+          });
+        } catch (error) {
+          console.error("Error loading proposal data:", error);
+        }
+      }
+    }
+    fetchProposalData();
+  }, [proposalId, form]);
 
   async function onSubmit(data: z.infer<typeof formProposalSchema>) {
     const formData = new FormData();
@@ -77,13 +100,12 @@ function FormProposal() {
       return;
     }
     form.setValue("orders", [...form.getValues("orders"), newOrder]);
-    console.log("Orders: ", form.getValues("orders"));
   }
 
-  function removeOrder(orderNumber: string) {
+  function removeOrder(order_number: string) {
     form.setValue(
       "orders",
-      form.getValues("orders").filter((o) => o.orderNumber !== orderNumber)
+      form.getValues("orders").filter((o) => o.order_number !== order_number)
     );
   }
 
@@ -91,7 +113,7 @@ function FormProposal() {
     form.setValue("orders", [
       ...form
         .getValues("orders")
-        .filter((o) => o.orderNumber !== order.orderNumber),
+        .filter((o) => o.order_number !== order.order_number),
       order,
     ]);
   }
@@ -126,7 +148,7 @@ function FormProposal() {
           <div className="flex items-end gap-4">
             <FormField
               control={form.control}
-              name="customerName"
+              name="customer_name"
               render={({ field }) => (
                 <FormItem className="flex-1 flex-col">
                   <FormLabel className="text-secondary-foreground">
@@ -144,7 +166,7 @@ function FormProposal() {
             />
             <FormField
               control={form.control}
-              name="proposalDate"
+              name="proposal_date"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel className="text-secondary-foreground">
@@ -187,7 +209,7 @@ function FormProposal() {
             />
             <FormField
               control={form.control}
-              name="docRevision"
+              name="doc_revision"
               render={({ field }) => (
                 <FormItem className="flex-1 flex-col max-w-14">
                   <FormLabel className="text-secondary-foreground">
@@ -204,7 +226,7 @@ function FormProposal() {
           <div>
             <FormField
               control={form.control}
-              name="projectType"
+              name="project_type"
               render={({ field }) => (
                 <FormItem className="flex-1 flex-col">
                   <FormLabel className="text-secondary-foreground">
@@ -232,7 +254,7 @@ function FormProposal() {
           <div className="flex gap-4">
             <FormField
               control={form.control}
-              name="paymentCondition"
+              name="payment_condition"
               render={({ field }) => (
                 <FormItem className="flex-1 flex-col">
                   <FormLabel className="text-secondary-foreground">
@@ -250,7 +272,7 @@ function FormProposal() {
             />
             <FormField
               control={form.control}
-              name="executionTime"
+              name="execution_time"
               render={({ field }) => (
                 <FormItem className="flex-1 flex-col">
                   <FormLabel className="text-secondary-foreground">
@@ -285,10 +307,10 @@ function FormProposal() {
               form={form}
             />
           </div>
-          <div className="w-full flex justify-center">
+          <div className="w-full flex justify-end">
             <Button type="submit" size="lg" className="mt-4">
               <FileTextIcon className="w-4 h-4 mr-2 text-white" />
-              Gerar proposta
+              {proposalId ? "Atualizar proposta" : "Gerar proposta"}
             </Button>
           </div>
         </div>

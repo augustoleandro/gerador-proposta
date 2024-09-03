@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,9 +11,16 @@ import {
 } from "@/components/ui/dialog";
 import { FormLabel } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import SelectEditable from "@/components/ui/selectEditable";
 import { OrdersTitles } from "@/lib/options";
-import { Order } from "@/lib/types";
+import { badgeVariants, Category, Order } from "@/lib/types";
 import { EditIcon } from "lucide-react";
 import { useState } from "react";
 
@@ -25,15 +33,17 @@ export function EditOrderDialog({
 }) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(order.value);
+  const [category, setCategory] = useState(order.category);
   const [description, setDescription] = useState(order.description);
 
   const handleSave = () => {
     onSave({
-      orderNumber: order.orderNumber,
+      order_number: order.order_number,
       value,
       description,
       items: order.items,
-      serviceDescription: order.serviceDescription,
+      service_description: order.service_description,
+      category: "AUT",
     });
     setOpen(false);
   };
@@ -52,7 +62,7 @@ export function EditOrderDialog({
         <DialogTrigger asChild></DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Pedido {order.orderNumber} </DialogTitle>
+            <DialogTitle>Pedido {order.order_number} </DialogTitle>
             <DialogDescription>
               Adicionar este pedido à proposta.
             </DialogDescription>
@@ -86,6 +96,32 @@ export function EditOrderDialog({
                 value={description}
                 onChange={setDescription}
               />
+            </div>
+            <div className="flex items-center gap-4">
+              <FormLabel htmlFor="category">Categoria</FormLabel>
+              <Select
+                onValueChange={(value) => setCategory(value as Category)}
+                value={category}
+                defaultValue={Object.keys(badgeVariants)[0] as Category}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione uma categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="AUT">
+                    <Badge variant={badgeVariants["AUT"]}>AUT</Badge>
+                  </SelectItem>
+                  <SelectItem value="AV">
+                    <Badge variant={badgeVariants["AV"]}>AV</Badge>
+                  </SelectItem>
+                  <SelectItem value="RD">
+                    <Badge variant={badgeVariants["RD"]}>RD</Badge>
+                  </SelectItem>
+                  <SelectItem value="SEC">
+                    <Badge variant={badgeVariants["SEC"]}>SEC</Badge>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <DialogFooter>

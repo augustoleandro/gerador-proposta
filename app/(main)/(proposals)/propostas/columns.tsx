@@ -1,24 +1,18 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { BadgeVariant, Category, Proposal } from "@/lib/types";
+import { badgeVariants, Category, Proposal } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, Download } from "lucide-react";
+import { ArrowUpDown, Download, EyeIcon } from "lucide-react";
 import Link from "next/link";
-
-const CategoryColors: Record<Category, BadgeVariant> = {
-  AUT: "default",
-  AV: "black",
-  RD: "secondary",
-  SEC: "outline",
-};
 
 export const columns: ColumnDef<Proposal>[] = [
   {
-    accessorKey: "customer",
+    accessorKey: "customer_name",
     header: ({ column }) => {
       return (
-        <div className="flex items-center justify-end">
+        <div className="flex items-center justify-start">
           Cliente
           <Button
             className="p-2 hover:bg-transparent"
@@ -31,7 +25,7 @@ export const columns: ColumnDef<Proposal>[] = [
       );
     },
   },
-  /* {
+  {
     accessorKey: "categories",
     header: "Categorias",
     cell: ({ row }) => {
@@ -40,15 +34,15 @@ export const columns: ColumnDef<Proposal>[] = [
         <Badge
           key={category}
           className="mr-1"
-          variant={CategoryColors[category]}
+          variant={badgeVariants[category]}
         >
           {category}
         </Badge>
       ));
     },
-  }, */
+  },
   {
-    accessorKey: "total_value",
+    accessorKey: "proposal_total_value",
     header: "Valor",
   },
   {
@@ -60,14 +54,20 @@ export const columns: ColumnDef<Proposal>[] = [
     header: "Criado em",
   },
   {
-    accessorKey: "doc_link",
-    header: "Link",
+    id: "actions",
+    header: "",
     cell: ({ row }) => {
-      const link: string = row.getValue("doc_link") || "#";
+      const proposalId: string = row.original.id || "";
+      const docLink: string = row.original.doc_link || "#";
       return (
-        <Link href={link} target="_blank" className="flex justify-end">
-          <Download className="w-4 h-4 text-primary" />
-        </Link>
+        <div className="flex items-center justify-end space-x-2">
+          <Link href={`/propostas/${proposalId}`} className="link-button">
+            <EyeIcon className="w-5 h-5" />
+          </Link>
+          <Link href={docLink} target="_blank" className="link-button">
+            <Download className="w-5 h-5" />
+          </Link>
+        </div>
       );
     },
   },

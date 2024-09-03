@@ -21,18 +21,18 @@ import {
 import SelectEditable from "@/components/ui/selectEditable";
 import { toast } from "@/components/ui/use-toast";
 import { OrdersTitles } from "@/lib/options";
-import { BadgeVariant, Category, Order, OrderItem } from "@/lib/types";
+import { badgeVariants, Category, Order, OrderItem } from "@/lib/types";
 import { getOrder } from "@/services/omie";
 import { Loader2, PlusIcon } from "lucide-react";
 import { useState } from "react";
 
 export function NewOrderDialog({
-  orderNumber,
+  order_number,
   onSave,
   orders,
   resetOrderNumber,
 }: {
-  orderNumber: string;
+  order_number: string;
   totalValue: number;
   orders: Order[];
   onSave: (order: Order) => void;
@@ -45,21 +45,14 @@ export function NewOrderDialog({
   const [items, setItems] = useState<OrderItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const badgeVariants: Record<Category, BadgeVariant> = {
-    AUT: "black",
-    AV: "default",
-    RD: "secondary",
-    SEC: "outline",
-  };
-
   const handleSave = () => {
-    const serviceDescription = "Serviço";
+    const service_description = "Serviço";
     onSave({
-      orderNumber,
+      order_number,
       value,
       description,
       items,
-      serviceDescription,
+      service_description,
       category: category as Category,
     });
     setOpen(false);
@@ -74,7 +67,7 @@ export function NewOrderDialog({
   };
 
   const handleFetchOrder = async () => {
-    if (orders.some((order) => order.orderNumber === orderNumber)) {
+    if (orders.some((order) => order.order_number === order_number)) {
       toast({
         variant: "destructive",
         title: "Pedido já adicionado",
@@ -84,7 +77,7 @@ export function NewOrderDialog({
     }
 
     setIsLoading(true);
-    const data = await getOrder(orderNumber);
+    const data = await getOrder(order_number);
 
     if (!data.pedido_venda_produto) {
       toast({
@@ -125,7 +118,7 @@ export function NewOrderDialog({
       <Button
         type="button"
         onClick={() => handleFetchOrder()}
-        disabled={isLoading || !orderNumber}
+        disabled={isLoading || !order_number}
       >
         {isLoading ? (
           <Loader2 className="w-4 h-4 animate-spin" />
@@ -137,7 +130,7 @@ export function NewOrderDialog({
         <DialogTrigger asChild></DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Pedido {orderNumber} </DialogTitle>
+            <DialogTitle>Pedido {order_number} </DialogTitle>
             <DialogDescription>
               Adicionar este pedido à proposta.
             </DialogDescription>
@@ -177,7 +170,7 @@ export function NewOrderDialog({
               <Select
                 onValueChange={(value) => setCategory(value as Category)}
                 value={category}
-                defaultValue="AUT"
+                defaultValue={Object.keys(badgeVariants)[0] as Category}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione uma categoria" />

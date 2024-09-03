@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
-  const { orderNumber } = await request.json();
+  const { order_number } = await request.json();
   try {
     const response = await fetch(
       "https://app.omie.com.br/api/v1/produtos/pedido/",
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
           app_secret: process.env.OMIE_APP_SECRET,
           param: [
             {
-              numero_pedido: orderNumber,
+              numero_pedido: order_number,
             },
           ],
         }),

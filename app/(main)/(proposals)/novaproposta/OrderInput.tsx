@@ -9,7 +9,7 @@ interface OrderInputProps {
 }
 
 export function OrderInput({ onOrderAdded, existingOrders }: OrderInputProps) {
-  const [orderNumber, setOrderNumber] = useState<string>("");
+  const [order_number, setOrderNumber] = useState<string>("");
 
   const handleAddOrder = (newOrder: Order) => {
     onOrderAdded(newOrder);
@@ -21,11 +21,11 @@ export function OrderInput({ onOrderAdded, existingOrders }: OrderInputProps) {
       <div className="flex gap-2">
         <Input
           placeholder="Nº do pedido"
-          value={orderNumber}
+          value={order_number}
           onChange={(e) => setOrderNumber(e.target.value)}
         />
         <NewOrderDialog
-          orderNumber={orderNumber}
+          order_number={order_number}
           totalValue={1000}
           onSave={handleAddOrder}
           resetOrderNumber={() => setOrderNumber("")}

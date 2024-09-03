@@ -1,5 +1,7 @@
 "use server";
 
+import { Proposal } from "@/lib/types";
+import { formatCurrency, formatDate } from "@/lib/utils";
 import { formProposalSchema } from "@/schemas/formProsposalSchema";
 import { createClient } from "@/utils/supabase/server";
 
@@ -25,13 +27,13 @@ export async function createProposal(data: FormData) {
     .from("proposals")
     .insert([
       {
-        customer_name: proposalData.customerName,
-        proposal_date: proposalData.proposalDate,
-        proposal_total_value: proposalData.proposalTotalValue,
-        payment_condition: proposalData.paymentCondition,
-        project_type: proposalData.projectType,
-        doc_revision: proposalData.docRevision,
-        execution_time: proposalData.executionTime,
+        customer_name: proposalData.customer_name,
+        proposal_date: proposalData.proposal_date,
+        proposal_total_value: proposalData.proposal_total_value,
+        payment_condition: proposalData.payment_condition,
+        project_type: proposalData.project_type,
+        doc_revision: proposalData.doc_revision,
+        execution_time: proposalData.execution_time,
         created_by: (await supabase.auth.getUser()).data.user?.id || null,
       },
     ])
@@ -52,10 +54,16 @@ export async function createProposal(data: FormData) {
       .insert([
         {
           proposal_id: proposal[0].id,
-          order_number: order.orderNumber,
+          order_number: order.order_number,
           description: order.description,
           value: order.value,
-          service_description: order.serviceDescription,
+          service_description: order.service_description,
+          category_id: await supabase
+            .from("categories")
+            .select("id")
+            .eq("name", order.category)
+            .single()
+            .then(({ data }) => data?.id),
         },
       ])
       .select()
@@ -86,4 +94,84 @@ export async function createProposal(data: FormData) {
   }
 
   console.log("Proposta: ", JSON.stringify(proposalData, null, 2));
+}
+
+export async function getProposals(): Promise<Proposal[]> {
+  const supabase = createClient();
+
+  const { data, error } = await supabase.from("proposals").select("*");
+
+  if (!data) {
+    return [];
+  }
+
+  const proposals = await Promise.all(
+    data.map(async (proposal) => {
+      const { data: user } = await supabase
+        .from("users")
+        .select("first_name")
+        .eq("id", proposal.created_by)
+        .single();
+
+      const categories_ids = await supabase
+        .from("orders")
+        .select("category_id")
+        .eq("proposal_id", proposal.id)
+        .then(({ data }) =>
+          Array.from(new Set(data?.map((category) => category.category_id)))
+        );
+
+      const { data: categoriesData } = await supabase
+        .from("categories")
+        .select("name")
+        .in("id", categories_ids);
+      const categories = Array.from(
+        new Set(categoriesData?.map((cat) => cat.name))
+      );
+
+      return {
+        ...proposal,
+        created_at: formatDate(proposal.created_at || ""),
+        proposal_total_value: formatCurrency(
+          proposal.proposal_total_value || ""
+        ),
+        created_by: user?.first_name || "",
+        categories: categories,
+      };
+    })
+  );
+  return proposals;
+}
+
+export async function getProposalById(id: string): Promise<Proposal> {
+  const supabase = createClient();
+
+  const { data: proposalData, error: proposalError } = await supabase
+    .from("proposals")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (!proposalData) {
+    throw new Error("Proposal not found");
+  }
+
+  const { data: ordersData, error: ordersError } = await supabase
+    .from("orders")
+    .select(
+      `
+      *,
+      items:order_items(*)
+    `
+    )
+    .eq("proposal_id", id);
+
+  if (ordersError) {
+    throw new Error("Error fetching orders");
+  }
+
+  return {
+    ...proposalData,
+    orders: ordersData || [],
+  };
 }

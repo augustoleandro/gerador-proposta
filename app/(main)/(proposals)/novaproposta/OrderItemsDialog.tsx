@@ -57,12 +57,12 @@ export function OrderItemsDialog({
   onSave: (order: Order) => void;
 }) {
   const [serviceDescription, setServiceDescription] = useState(
-    order.serviceDescription || ""
+    order.service_description || ""
   );
   const [open, setOpen] = useState(false);
 
   const handleSave = () => {
-    onSave({ ...order, serviceDescription });
+    onSave({ ...order, service_description: serviceDescription });
     setOpen(false);
   };
 

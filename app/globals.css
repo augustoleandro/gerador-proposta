@@ -100,4 +100,8 @@
   .border-success {
     border-color: hsl(var(--success));
   }
+
+  .link-button {
+    @apply hover:bg-primary/10 rounded-md p-1 transition-all duration-100;
+  }
 }

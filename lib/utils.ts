@@ -19,10 +19,10 @@ export function formatDate(dateString: string): string {
     .replace(",", "");
 }
 
-export function formatCurrency(value: string): string {
-  const numericValue = parseFloat(value.replace(".", "").replace(",", "."));
-  return new Intl.NumberFormat("pt-BR", {
+export function formatCurrency(value: number): string {
+  const formattedValue = new Intl.NumberFormat("pt-BR", {
     style: "currency",
     currency: "BRL",
-  }).format(numericValue);
+  }).format(value);
+  return formattedValue;
 }
