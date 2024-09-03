@@ -10,14 +10,36 @@ export type User = {
 
 export type Proposal = {
   id: string;
-  customer: string;
-  customer_doc: string;
-  created_at?: string;
-  updated_at?: string;
-  total_value?: string;
-  pdf_link?: string;
-  created_by: string;
-  categories?: number[];
+  customerName: string;
+  proposalDate: string;
+  proposalTotalValue: number;
+  paymentCondition: string;
+  projectType: string;
+  docRevision: string;
+  executionTime: string;
+  createdAt?: string;
+  updatedAt?: string;
+  docLink?: string;
+  createdBy: string;
+  orders: Order[];
+};
+
+export interface Order {
+  orderNumber: string;
+  description: string;
+  value: number;
+  items: OrderItem[];
+  serviceDescription: string;
+  category: Category;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export type OrderItem = {
+  name: string;
+  quantity: string;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type Category = "AUT" | "AV" | "RD" | "SEC";
@@ -30,16 +52,3 @@ export type BadgeVariant =
   | "black"
   | null
   | undefined;
-
-export type OrderItem = {
-  name: string;
-  quantity: string;
-};
-
-export interface Order {
-  orderNumber: string;
-  description: string;
-  value: number;
-  items: OrderItem[];
-  serviceDescription: string;
-}

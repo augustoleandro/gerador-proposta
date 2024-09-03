@@ -19,7 +19,7 @@ export async function getData(): Promise<Proposal[]> {
         .eq("id", proposal.created_by)
         .single();
 
-      const categories = await Promise.all(
+      /* const categories = await Promise.all(
         proposal.categories.map(async (category: number) => {
           const { data } = await supabase
             .from("categories")
@@ -29,14 +29,14 @@ export async function getData(): Promise<Proposal[]> {
 
           return data?.name || "";
         })
-      );
+      ); */
 
       return {
         ...proposal,
         created_at: formatDate(proposal.created_at || ""),
         total_value: formatCurrency(proposal.total_value || ""),
         created_by: user?.first_name || "",
-        categories: categories,
+        //categories: categories,
       };
     })
   );

@@ -74,7 +74,7 @@ export function OrderItemsDialog({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild></DialogTrigger>
         <DialogContent
-          className="sm:max-w-[720px]"
+          className="sm:max-w-[720px] max-h-[90vh] flex flex-col"
           onInteractOutside={(e) => {
             e.preventDefault();
           }}
@@ -83,71 +83,78 @@ export function OrderItemsDialog({
             <DialogTitle>{order.description}</DialogTitle>
             <DialogDescription>Descrição de itens do pedido</DialogDescription>
           </DialogHeader>
-          <div className="flex flex-col gap-4">
-            <Table className="w-full overflow-y-auto">
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Item</TableHead>
-                  <TableHead className="flex items-center justify-end">
-                    Quantidade
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {order.items.map((item) => (
-                  <TableRow key={item.name}>
-                    <TableCell>{item.name}</TableCell>
-                    <TableCell align="right">{item.quantity}</TableCell>
+          <div className="flex flex-col gap-4 w-full">
+            <div className="max-h-[320px] w-full overflow-auto border-secondary border-[2px] rounded-md">
+              <Table className="w-full ">
+                <TableHeader className="sticky top-0 bg-primary z-10">
+                  <TableRow>
+                    <TableHead className="bg-primary/30 text-white">
+                      Item
+                    </TableHead>
+                    <TableHead className="bg-primary/30 text-white text-right">
+                      Quantidade
+                    </TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-          <div className="flex flex-col gap-2">
-            <FormLabel
-              htmlFor="selectDescription"
-              className="text-secondary-foreground"
-            >
-              Template:
-            </FormLabel>
-            <Select onValueChange={setServiceDescription}>
-              <SelectTrigger>
-                <SelectValue placeholder="Templates prontos..." />
-              </SelectTrigger>
-              <SelectContent>
-                {serviceDescriptionTemplates.map((template) => (
-                  <SelectItem key={template.label} value={template.description}>
-                    {template.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex flex-col gap-2">
-            <FormLabel
-              htmlFor="serviceDescription"
-              className="text-secondary-foreground"
-            >
-              Descrição do Serviço:
-            </FormLabel>
+                </TableHeader>
+                <TableBody>
+                  {order.items.map((item) => (
+                    <TableRow key={item.name}>
+                      <TableCell>{item.name}</TableCell>
+                      <TableCell align="right">{item.quantity}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
 
-            <Textarea
-              id="serviceDescription"
-              placeholder="Digite ou edite a descrição do serviço..."
-              className="h-32 mt-2"
-              value={serviceDescription}
-              onChange={(e) => setServiceDescription(e.target.value)}
-            />
-          </div>
+            <div className="flex flex-col gap-2">
+              <FormLabel
+                htmlFor="selectDescription"
+                className="text-secondary-foreground"
+              >
+                Template:
+              </FormLabel>
+              <Select onValueChange={setServiceDescription}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Templates prontos..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {serviceDescriptionTemplates.map((template) => (
+                    <SelectItem
+                      key={template.label}
+                      value={template.description}
+                    >
+                      {template.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex flex-col gap-2">
+              <FormLabel
+                htmlFor="serviceDescription"
+                className="text-secondary-foreground"
+              >
+                Descrição do Serviço:
+              </FormLabel>
 
-          <DialogFooter>
-            <Button
-              onClick={handleSave}
-              disabled={serviceDescription.length === 0}
-            >
-              Salvar
-            </Button>
-          </DialogFooter>
+              <Textarea
+                id="serviceDescription"
+                placeholder="Digite ou edite a descrição do serviço..."
+                className="h-32 mt-2 resize-none"
+                value={serviceDescription}
+                onChange={(e) => setServiceDescription(e.target.value)}
+              />
+            </div>
+            <DialogFooter>
+              <Button
+                onClick={handleSave}
+                disabled={serviceDescription.length === 0}
+              >
+                Salvar
+              </Button>
+            </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </>

@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,10 +11,17 @@ import {
 } from "@/components/ui/dialog";
 import { FormLabel } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import SelectEditable from "@/components/ui/selectEditable";
 import { toast } from "@/components/ui/use-toast";
 import { OrdersTitles } from "@/lib/options";
-import { Order, OrderItem } from "@/lib/types";
+import { BadgeVariant, Category, Order, OrderItem } from "@/lib/types";
 import { getOrder } from "@/services/omie";
 import { Loader2, PlusIcon } from "lucide-react";
 import { useState } from "react";
@@ -33,12 +41,27 @@ export function NewOrderDialog({
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(0.0);
   const [description, setDescription] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [category, setCategory] = useState<Category>("AUT");
   const [items, setItems] = useState<OrderItem[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const badgeVariants: Record<Category, BadgeVariant> = {
+    AUT: "black",
+    AV: "default",
+    RD: "secondary",
+    SEC: "outline",
+  };
 
   const handleSave = () => {
     const serviceDescription = "Serviço";
-    onSave({ orderNumber, value, description, items, serviceDescription });
+    onSave({
+      orderNumber,
+      value,
+      description,
+      items,
+      serviceDescription,
+      category: category as Category,
+    });
     setOpen(false);
     setValue(0.0);
     setDescription("");
@@ -148,6 +171,32 @@ export function NewOrderDialog({
                 value={description}
                 onChange={setDescription}
               />
+            </div>
+            <div className="flex items-center gap-4">
+              <FormLabel htmlFor="category">Categoria</FormLabel>
+              <Select
+                onValueChange={(value) => setCategory(value as Category)}
+                value={category}
+                defaultValue="AUT"
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione uma categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="AUT">
+                    <Badge variant={badgeVariants["AUT"]}>AUT</Badge>
+                  </SelectItem>
+                  <SelectItem value="AV">
+                    <Badge variant={badgeVariants["AV"]}>AV</Badge>
+                  </SelectItem>
+                  <SelectItem value="RD">
+                    <Badge variant={badgeVariants["RD"]}>RD</Badge>
+                  </SelectItem>
+                  <SelectItem value="SEC">
+                    <Badge variant={badgeVariants["SEC"]}>SEC</Badge>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <DialogFooter>

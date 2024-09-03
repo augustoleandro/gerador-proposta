@@ -1,6 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { BadgeVariant, Category, Proposal } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
@@ -32,12 +31,7 @@ export const columns: ColumnDef<Proposal>[] = [
       );
     },
   },
-  {
-    accessorKey: "customer_doc",
-    header: "CPNJ/CPF",
-  },
-
-  {
+  /* {
     accessorKey: "categories",
     header: "Categorias",
     cell: ({ row }) => {
@@ -52,7 +46,7 @@ export const columns: ColumnDef<Proposal>[] = [
         </Badge>
       ));
     },
-  },
+  }, */
   {
     accessorKey: "total_value",
     header: "Valor",
@@ -66,10 +60,10 @@ export const columns: ColumnDef<Proposal>[] = [
     header: "Criado em",
   },
   {
-    accessorKey: "pdf_link",
+    accessorKey: "doc_link",
     header: "Link",
     cell: ({ row }) => {
-      const link: string = row.getValue("pdf_link");
+      const link: string = row.getValue("doc_link") || "#";
       return (
         <Link href={link} target="_blank" className="flex justify-end">
           <Download className="w-4 h-4 text-primary" />

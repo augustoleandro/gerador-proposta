@@ -5,7 +5,7 @@ export const formProposalSchema = z.object({
     .string()
     .min(2, { message: "Nome deve ter no mínimo 2 caracteres" })
     .max(50, { message: "Nome deve ter no máximo 50 caracteres" }),
-  propostalDate: z.date({ required_error: "É necessário informar a data." }),
+  proposalDate: z.date({ required_error: "É necessário informar a data." }),
   orders: z.array(
     z.object({
       orderNumber: z

@@ -37,7 +37,7 @@ function DropdownAvatar() {
   return (
     <div className="flex items-center gap-4">
       <DropdownMenu>
-        <DropdownMenuTrigger className="focus:outline-none border-4 border-purple-600 rounded-full">
+        <DropdownMenuTrigger className="focus:outline-none border-4 border-secondary rounded-full">
           <Avatar className="bg-background">
             <AvatarImage src={user?.avatar_url} />
             <AvatarFallback>

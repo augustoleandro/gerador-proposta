@@ -41,7 +41,7 @@ function FormProposal() {
   const form = useForm<z.infer<typeof formProposalSchema>>({
     resolver: zodResolver(formProposalSchema),
     defaultValues: {
-      propostalDate: new Date(),
+      proposalDate: new Date(),
       orders: [],
       paymentCondition: "Entrada + 02 (duas parcelas) iguais",
       executionTime: "60 dias após liberação pela obra",
@@ -144,7 +144,7 @@ function FormProposal() {
             />
             <FormField
               control={form.control}
-              name="propostalDate"
+              name="proposalDate"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel className="text-secondary-foreground">
