@@ -56,13 +56,13 @@ export function OrderItemsDialog({
   order: Order;
   onSave: (order: Order) => void;
 }) {
-  const [serviceDescription, setServiceDescription] = useState(
+  const [service_description, setServiceDescription] = useState(
     order.service_description || ""
   );
   const [open, setOpen] = useState(false);
 
   const handleSave = () => {
-    onSave({ ...order, service_description: serviceDescription });
+    onSave({ ...order, service_description });
     setOpen(false);
   };
 
@@ -142,14 +142,14 @@ export function OrderItemsDialog({
                 id="serviceDescription"
                 placeholder="Digite ou edite a descrição do serviço..."
                 className="h-32 mt-2 resize-none"
-                value={serviceDescription}
+                value={service_description}
                 onChange={(e) => setServiceDescription(e.target.value)}
               />
             </div>
             <DialogFooter>
               <Button
                 onClick={handleSave}
-                disabled={serviceDescription.length === 0}
+                disabled={service_description.length === 0}
               >
                 Salvar
               </Button>

@@ -33,17 +33,17 @@ export function EditOrderDialog({
 }) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(order.value);
-  const [category, setCategory] = useState(order.category);
+  const [category, setCategory] = useState<Category>(
+    order.category as Category
+  );
   const [description, setDescription] = useState(order.description);
 
   const handleSave = () => {
     onSave({
-      order_number: order.order_number,
+      ...order,
       value,
       description,
-      items: order.items,
-      service_description: order.service_description,
-      category: "AUT",
+      category,
     });
     setOpen(false);
   };
@@ -102,12 +102,11 @@ export function EditOrderDialog({
               <Select
                 onValueChange={(value) => setCategory(value as Category)}
                 value={category}
-                defaultValue={Object.keys(badgeVariants)[0] as Category}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione uma categoria" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent id="category">
                   <SelectItem value="AUT">
                     <Badge variant={badgeVariants["AUT"]}>AUT</Badge>
                   </SelectItem>

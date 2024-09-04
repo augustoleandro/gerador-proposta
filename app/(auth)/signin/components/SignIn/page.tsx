@@ -34,7 +34,6 @@ function SignIn() {
   const { toast } = useToast();
 
   useEffect(() => {
-    console.log("State changed:", state);
     if (state.error) {
       toast({
         title: "Erro",

@@ -2,8 +2,8 @@ import { getProposals } from "@/actions/proposals/actions";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
-import { columns } from "./propostas/columns";
-import { DataTable } from "./propostas/data-table";
+import { ColumnProposalTable } from "./components/ColumnPropostalTable";
+import { DataProposalTable } from "./components/DataProposalTable";
 
 export default async function HomePage() {
   const data = await getProposals();
@@ -20,7 +20,7 @@ export default async function HomePage() {
         </Link>
       </div>
 
-      <DataTable columns={columns} data={data} />
+      <DataProposalTable columns={ColumnProposalTable} data={data} />
     </div>
   );
 }

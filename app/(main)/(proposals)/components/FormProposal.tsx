@@ -1,6 +1,10 @@
 "use client";
 
-import { createProposal, getProposalById } from "@/actions/proposals/actions";
+import {
+  createProposal,
+  editProposal,
+  getProposalById,
+} from "@/actions/proposals/actions";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -24,6 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "@/components/ui/use-toast";
 import { ProjectTypes } from "@/lib/options";
 import { Order } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -31,18 +36,22 @@ import { formProposalSchema } from "@/schemas/formProsposalSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { CalendarIcon, FileTextIcon } from "lucide-react";
-import { useEffect } from "react";
+import { CalendarIcon, FileTextIcon, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { OrderInput } from "../novaproposta/OrderInput";
-import OrdersTable from "../novaproposta/OrdersTable";
+import { OrderInput } from "./OrderInput";
+import OrdersTable from "./OrdersTable";
 
 interface FormProposalProps {
   proposalId?: string;
 }
 
 function FormProposal({ proposalId }: FormProposalProps) {
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const form = useForm<z.infer<typeof formProposalSchema>>({
     resolver: zodResolver(formProposalSchema),
     defaultValues: {
@@ -60,7 +69,6 @@ function FormProposal({ proposalId }: FormProposalProps) {
       if (proposalId) {
         try {
           const proposalData = await getProposalById(proposalId);
-          console.log("proposalData", proposalData);
           form.reset({
             ...proposalData,
             proposal_date: new Date(proposalData.proposal_date),
@@ -74,23 +82,54 @@ function FormProposal({ proposalId }: FormProposalProps) {
   }, [proposalId, form]);
 
   async function onSubmit(data: z.infer<typeof formProposalSchema>) {
-    const formData = new FormData();
-    Object.entries(data).forEach(([key, value]) => {
-      if (key === "orders") {
-        formData.append(key, JSON.stringify(value));
-      } else if (value instanceof Date) {
-        formData.append(key, value.toISOString());
-      } else {
-        formData.append(key, value.toString());
-      }
-    });
+    setIsSubmitting(true);
+
     try {
-      const result = await createProposal(formData);
-      console.log("Proposal created successfully:", result);
-      // Adicione aqui a lógica para lidar com o sucesso (ex: mostrar uma mensagem, redirecionar, etc.)
+      const formData = new FormData();
+      Object.entries(data).forEach(([key, value]) => {
+        if (key === "orders") {
+          formData.append(key, JSON.stringify(value));
+        } else if (value instanceof Date) {
+          formData.append(key, value.toISOString());
+        } else {
+          formData.append(key, value.toString());
+        }
+      });
+
+      let result;
+      if (proposalId) {
+        result = await editProposal(proposalId, formData);
+      } else {
+        result = await createProposal(formData);
+      }
+
+      if (result.result === "created") {
+        toast({
+          title: `Proposta criada com sucesso!`,
+          variant: "success",
+        });
+      } else if (result.result === "updated") {
+        toast({
+          title: `Proposta atualizada com sucesso!`,
+          variant: "success",
+        });
+      }
+      router.push("/");
     } catch (error) {
-      console.error("Error creating proposal:", error);
-      // Adicione aqui a lógica para lidar com o erro (ex: mostrar uma mensagem de erro)
+      console.error(
+        `Error ${proposalId ? "updating" : "creating"} proposal:`,
+        error
+      );
+      toast({
+        title: `Erro ao ${proposalId ? "atualizar" : "criar"} proposta`,
+        description:
+          error instanceof Error
+            ? error.message
+            : "Ocorreu um erro desconhecido",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -110,12 +149,15 @@ function FormProposal({ proposalId }: FormProposalProps) {
   }
 
   function editOrder(order: Order) {
-    form.setValue("orders", [
-      ...form
-        .getValues("orders")
-        .filter((o) => o.order_number !== order.order_number),
-      order,
-    ]);
+    const currentOrders = form.getValues("orders");
+    const orderIndex = currentOrders.findIndex(
+      (o) => o.order_number === order.order_number
+    );
+    if (orderIndex !== -1) {
+      const newOrders = [...currentOrders];
+      newOrders[orderIndex] = order;
+      form.setValue("orders", newOrders);
+    }
   }
 
   function moveOrder(index: number, direction: "up" | "down") {
@@ -233,8 +275,8 @@ function FormProposal({ proposalId }: FormProposalProps) {
                     Finalidade do projeto:
                   </FormLabel>
                   <FormControl>
-                    <Select onValueChange={field.onChange} {...field}>
-                      <SelectTrigger>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Selecione o tipo de projeto..." />
                       </SelectTrigger>
                       <SelectContent>
@@ -308,9 +350,22 @@ function FormProposal({ proposalId }: FormProposalProps) {
             />
           </div>
           <div className="w-full flex justify-end">
-            <Button type="submit" size="lg" className="mt-4">
-              <FileTextIcon className="w-4 h-4 mr-2 text-white" />
-              {proposalId ? "Atualizar proposta" : "Gerar proposta"}
+            <Button
+              type="submit"
+              size="lg"
+              className="mt-4"
+              disabled={isSubmitting || orders.length === 0}
+            >
+              {isSubmitting ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <FileTextIcon className="w-4 h-4 mr-2 text-white" />
+              )}
+              {isSubmitting
+                ? "Aguarde..."
+                : proposalId
+                ? "Atualizar proposta"
+                : "Gerar proposta"}
             </Button>
           </div>
         </div>

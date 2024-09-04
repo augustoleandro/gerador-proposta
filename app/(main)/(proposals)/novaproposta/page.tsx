@@ -6,7 +6,6 @@ function page() {
       <div className="flex justify-between items-center">
         <h2 className="h2 text-primary">Nova Proposta</h2>
       </div>
-
       <FormProposal />
     </div>
   );

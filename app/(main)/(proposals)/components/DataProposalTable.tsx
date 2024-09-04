@@ -25,15 +25,15 @@ import {
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import React from "react";
 
-interface DataTableProps<TData, TValue> {
+interface DataProposalTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
 }
 
-export function DataTable<TData, TValue>({
+export function DataProposalTable<TData, TValue>({
   columns,
   data,
-}: DataTableProps<TData, TValue>) {
+}: DataProposalTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -71,7 +71,9 @@ export function DataTable<TData, TValue>({
               ""
             }
             onChange={(event) =>
-              table.getColumn("customer")?.setFilterValue(event.target.value)
+              table
+                .getColumn("customer_name")
+                ?.setFilterValue(event.target.value)
             }
             className="pl-10 w-full"
           />

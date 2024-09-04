@@ -7,7 +7,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, Download, EyeIcon } from "lucide-react";
 import Link from "next/link";
 
-export const columns: ColumnDef<Proposal>[] = [
+export const ColumnProposalTable: ColumnDef<Proposal>[] = [
   {
     accessorKey: "customer_name",
     header: ({ column }) => {

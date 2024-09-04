@@ -23,7 +23,7 @@ interface OrdersTableProps {
   removeOrder: (order_number: string) => void;
 }
 
-function OrdersTable({
+export function OrdersTable({
   orders,
   moveOrder,
   editOrder,
