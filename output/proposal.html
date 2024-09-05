@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Proposta Comercial - {{clienteName}}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+      }
+
+      @page {
+        size: A4;
+        margin: 0;
+      }
+      @media print {
+        body {
+          width: 210mm;
+          height: 297mm;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        .page {
+          margin: 0;
+          border: initial;
+          border-radius: initial;
+          width: initial;
+          min-height: initial;
+          box-shadow: initial;
+          background: initial;
+          page-break-after: always;
+        }
+      }
+      .page {
+        width: 210mm;
+        height: 297mm;
+        border: 1px solid #ccc;
+        background-image: url("./assets/images/proposal_background.png");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body class="font-sans text-gray-700">
+    <!-- Template para o cabeçalho de cada página -->
+    <template id="page-header">
+      <div class="page-number-container flex justify-between items-center mb-8">
+        <img
+          src="./assets/images/logo_horizontal.png"
+          alt="Logo Automatize"
+          class="w-40"
+        />
+        <span class="page-number"></span>
+      </div>
+    </template>
+
+    <!-- Template para o rodapé de cada página -->
+    <template id="page-footer">
+      <div class="flex flex-col w-full">
+        <div class="w-8 h-1 bg-gray-700 mb-4"></div>
+        <div class="flex flex-row w-full justify-between">
+          <div class="flex flex-row gap-2">
+            <div class="flex flex-col">
+              <span class="text-sm">WWW.AUTOMATIZE.COM.BR</span>
+              <div class="flex flex-row justify-between">
+                <img
+                  src="./assets/images/instagram_icon.png"
+                  alt="Logo Instagram"
+                  class="w-6 h-6 mt-auto"
+                />
+                <span class="text-sm">@AUTOMATIZEOFICIAL</span>
+              </div>
+            </div>
+          </div>
+          <img
+            src="./assets/images/qr_code.png"
+            alt="QR-Code Automatize"
+            class="w-12"
+          />
+        </div>
+      </div>
+    </template>
+
+    <!-- Capa - Página 1 -->
+    <div class="page mx-auto p-8 bg-white box-border">
+      <div class="flex flex-col w-full justify-center items-center">
+        <img
+          src="./assets/images/logo_vertical.png"
+          alt="Logo Automatize"
+          class="w-80"
+        />
+        <div class="w-full flex flex-col justify-start mt-24">
+          <h1 class="text-[100px] font-semibold uppercase leading-none">
+            Proposta
+          </h1>
+          <h1 class="text-[100px] font-semibold uppercase leading-none">
+            Comercial
+          </h1>
+          <h2 class="text-2xl font-semibold uppercase text-right mr-52">
+            {{proposal_date}} - R{{doc_rev}}
+          </h2>
+        </div>
+        <div class="relative w-full h-full">
+          <span
+            class="absolute bottom-0 right-0 origin-bottom-right -rotate-90 transform translate-y-full"
+            >WWW.AUTOMATIZE.COM.BR</span
+          >
+        </div>
+        <div class="w-full flex flex-col justify-start mt-32">
+          <h2 class="text-2xl font-semibold uppercase">Preparada para</h2>
+          <h2 class="text-3xl font-semibold uppercase">{{customer_name}}</h2>
+          <div class="w-8 h-1 bg-gray-700 mt-16 mb-4"></div>
+          <h3 class="text-lg w-3/4 mt-4 text-justify">
+            Quando você escolhe a Automatize, você está escolhendo uma empresa
+            séria e dedicada, pronta para oferecer um atendimento impecável,
+            desde o planejamento até a instalação final. Estamos aqui para
+            garantir que sua experiência seja a melhor, do começo ao fim.
+          </h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- Página 2 -->
+    <div class="page p-8 mx-auto bg-white box-border flex flex-col">
+      <div class="page-header"></div>
+
+      <div class="w-full flex-grow flex flex-row">
+        <div class="flex flex-col flex-grow w-1/2">
+          <div class="flex flex-col">
+            <h2 class="text-7xl uppercase">SOBRE</h2>
+            <h2 class="text-7xl uppercase">NÓS</h2>
+          </div>
+          <img
+            src="./assets/images/fachada_photo.png"
+            alt="Foto Fachada Automatize"
+            class="mt-[170px] w-80"
+          />
+        </div>
+        <div class="w-1/2">
+          <p class="text-lg text-justify">
+            A <b>Automatize</b> é uma empresa nacional com <b>17 anos</b> de
+            mercado, especializada em soluções inovadoras de automação
+            residencial e predial, áudio e vídeo. Com sedes em <b>Goiânia</b> e
+            <b>Brasília</b> estamos comprometidos em transformar a forma como as
+            pessoas interagem com seus ambientes, oferecemos uma vasta gama de
+            soluções que proporcionam mais conforto, segurança, eficiência,
+            facilidade e bem-estar.
+            <br />
+            <br />
+            Desde o início, nos dedicamos a entender as necessidades específicas
+            de nossos clientes, criando projetos personalizados que integram
+            tecnologia de ponta com design funcional. Nosso portfólio inclui
+            sistemas inteligentes de iluminação, climatização, segurança,
+            entretenimento, e muito mais, todos controlados de forma simples e
+            intuitiva por meio de dispositivos fixos, móveis ou comandos de voz.
+            <br />
+            <br />
+            <b
+              >Na Automatize, acreditamos que a automação não é apenas uma
+              tendência, mas uma evolução necessária para um dia a dia mais
+              prático e conectado.</b
+            >
+            Nossa equipe, composta por profissionais altamente capacitados, está
+            sempre à disposição para oferecer suporte completo em todas as
+            etapas, desde o planejamento até a instalação e manutenção,
+            garantindo uma experiência única e satisfatória.
+          </p>
+        </div>
+      </div>
+      <div class="page-footer"></div>
+    </div>
+
+    <!-- Página 3 -->
+    <div class="page p-8 mx-auto bg-white box-border flex flex-col">
+      <div class="page-header"></div>
+
+      <div class="w-full flex-grow flex flex-row">
+        <div class="flex flex-col flex-grow w-1/2">
+          <div class="flex flex-col">
+            <h2 class="text-7xl uppercase">NOSSA</h2>
+            <h2 class="text-7xl uppercase">EQUIPE</h2>
+          </div>
+          <img
+            src="./assets/images/equipe_photo.png"
+            alt="Foto Fachada Automatize"
+            class="mt-28 w-80"
+          />
+        </div>
+        <div class="w-1/2">
+          <p class="text-lg text-justify">
+            Na <b>Automatize</b>, acreditamos que o sucesso de qualquer projeto
+            depende diretamente da <b>excelência</b> da equipe por trás dele. É
+            por isso que contamos com uma equipe altamente capacitada, composta
+            por profissionais que não apenas dominam a tecnologia de ponta, mas
+            também compartilham da nossa paixão por entregar resultados
+            <b>impecáveis</b>.
+            <br />
+            <br />
+            Nosso time é formado por especialistas em diversas áreas, incluindo
+            engenharia, gestão de projetos, e atendimento ao cliente, todos com
+            um <b>compromisso</b> inabalável de oferecer o <b>melhor</b> a cada
+            etapa do processo. Desde o primeiro contato até a entrega final do
+            projeto, estamos dedicados a proporcionar uma
+            <b>experiência</b> única e diferenciada, sempre tentando superar as
+            expectativas dos nossos clientes.
+            <br />
+            <br />
+            Nosso diferencial está na combinação de <b>conhecimento</b> técnico,
+            atenção aos <b>detalhes</b> e um compromisso genuíno em oferecer o
+            melhor serviço possível. Isso se reflete em cada projeto que
+            realizamos, onde buscamos não apenas atender, mas
+            <b>encantar</b> nossos clientes, proporcionando soluções de
+            automação, áudio e vídeo que realmente fazem a diferença no dia a
+            dia.
+          </p>
+        </div>
+      </div>
+      <div class="page-footer"></div>
+    </div>
+
+    <!-- Página 4 -->
+    <div class="page p-8 mx-auto bg-white box-border flex flex-col">
+      <div class="page-header"></div>
+      <div class="flex flex-col items-end w-full">
+        <h2 class="text-7xl uppercase">PRINCIPAIS</h2>
+        <h2 class="text-7xl uppercase">DIFERENCIAIS</h2>
+      </div>
+      <div class="w-full flex-grow flex flex-row gap-8 mt-14">
+        <div class="flex flex-col flex-grow w-1/2 gap-8">
+          <div
+            class="card h-[200px] flex flex-col border-b-[1px] border-gray-700 pb-8"
+          >
+            <h2 class="card-title text-xl font-bold uppercase">
+              SUPERVISÃO E ACOMPANHAMENTO
+            </h2>
+            <p class="card-content mt-8 text-lg text-justify">
+              Nossos profissionais fazem a supervisão técnica da obra e dirime
+              quaisquer dúvidas ou informações sobre a implementação das nossas
+              soluções.
+            </p>
+          </div>
+          <div
+            class="card h-[200px] flex flex-col border-b-[1px] border-gray-700 pb-8"
+          >
+            <h2 class="card-title text-xl font-bold uppercase">
+              EQUIPE ALTAMENTE CAPACITADA
+            </h2>
+            <p class="card-content mt-8 text-lg text-justify">
+              Equipe técnica treinada junto aos fabricantes e certificados para
+              implementação das nossas soluções.
+            </p>
+          </div>
+          <div class="card h-[200px] flex flex-col pb-8">
+            <h2 class="card-title text-xl font-bold uppercase">
+              EQUIPE DE SUPORTE PÓS-VENDA
+            </h2>
+            <p class="card-content mt-8 text-lg text-justify">
+              Caminhamos juntos com nossos clientes, no antes e depois. Sempre
+              preparados para atendê-los em qualquer chamado.
+            </p>
+          </div>
+        </div>
+        <div class="flex flex-col flex-grow w-1/2 gap-8">
+          <div
+            class="card h-[200px] flex flex-col border-b-[1px] border-gray-700 pb-8"
+          >
+            <h2 class="card-title text-xl font-bold uppercase text-right">
+              17 anos de experiÊNCIA
+            </h2>
+            <p class="card-content mt-8 text-lg text-end">
+              Há anos adquirindo experiência e know-how na área de tecnologias e
+              soluções de automação, áudio e vídeo.
+            </p>
+          </div>
+          <div
+            class="card h-[200px] flex flex-col border-b-[1px] border-gray-700 pb-8"
+          >
+            <h2 class="card-title text-xl font-bold uppercase text-right">
+              SOLUÇÕES ROBUSTAS
+            </h2>
+            <p class="card-content mt-8 text-lg text-end">
+              Trabalhamos com produtos reconhecidos pela robustez, durabilidade
+              e qualidade. Todos os produtos possuem procedência garantida e
+              garantia em território nacional.
+            </p>
+          </div>
+          <div class="card h-[200px] flex flex-col pb-8">
+            <h2 class="card-title text-xl font-bold uppercase text-right">
+              ENGENHARIA
+            </h2>
+            <p class="card-content mt-8 text-lg text-end">
+              Diretoria composta por engenheiros especializados e projetos
+              realizados por engenheiros credenciados no CREA.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="page-footer"></div>
+    </div>
+
+    <!-- Página 5 -->
+    <div class="page p-8 mx-auto bg-white box-border flex flex-col">
+      <div class="page-header"></div>
+      <div class="flex flex-col flex-grow items-center w-full">
+        <h1
+          class="w-full leading-loose text-2xl text-white text-center bg-gray-700 uppercase"
+        >
+          1. APRESENTAÇÃO
+        </h1>
+        <h2 class="text-2xl uppercase text-center font-semibold mt-16">
+          PROJETO
+        </h2>
+        <h2 class="text-2xl uppercase text-center mt-8">{{customer_name}}</h2>
+        <h2 class="text-2xl uppercase text-center font-semibold mt-16">
+          FINALIDADE
+        </h2>
+        <h2 class="text-2xl uppercase text-center mt-8">{{project_type}}</h2>
+        <span class="text-xl text-justify mt-16">
+          A <b>AUTOMATIZE</b>, com sedes na Rua 1.131, 568 - Setor Marista em
+          Goiânia-GO e SHIS QI26 LT09 - Lago Sul em Brasília-DF, tem o prazer de
+          apresentar a seguinte proposta para a execução dos serviços em
+          referência, incluindo o fornecimento de todos os materiais necessários
+          e mão de obra especializada.
+          <br />
+          <br />
+          A <b>AUTOMATIZE</b> segue rigorosamente as normas estabelecidas pela
+          Associação Brasileira de Normas Técnicas (ABNT). Na ausência de normas
+          nacionais, utilizamos as normas internacionais aplicáveis para
+          garantir a qualidade e a conformidade dos serviços prestados. Ao
+          aprovar esta proposta, nossa equipe de engenharia assumirá a
+          responsabilidade técnica perante o CREA-GO, incluindo o registro e
+          recolhimento da Anotação de Responsabilidade Técnica (ART) quando
+          necessário.
+        </span>
+      </div>
+
+      <div class="page-footer"></div>
+    </div>
+
+    <!-- Página 6 -->
+    <div class="page p-8 mx-auto bg-white box-border flex flex-col">
+      <div class="page-header"></div>
+      <div class="flex flex-col flex-grow gap-10 items-center w-full">
+        <h1
+          class="w-full leading-loose text-2xl text-white text-center bg-gray-700 uppercase"
+        >
+          2. CONSTITUI ESCOPO DESTA PROPOSTA
+        </h1>
+
+        <div class="flex flex-col gap-4">
+          <h2 class="text-xl font-semibold">
+            2.1. Instalação, Configuração e Programação
+          </h2>
+          <span class="text-xl text-justify">
+            Realização da instalação, configuração e programação de todos os
+            equipamentos e periféricos fornecidos pela Automatize e contemplados
+            nesta proposta, assegurando a plena integração e funcionalidade do
+            sistema.
+          </span>
+        </div>
+        <div class="flex flex-col gap-4">
+          <h2 class="text-xl font-semibold">
+            2.2. Acompanhamento e Supervisão da Obra
+          </h2>
+          <span class="text-xl text-justify">
+            Supervisão detalhada de todas as etapas do projeto, incluindo
+            planejamento, execução, instalação e testes. Garantia de que todas
+            as fases estejam em conformidade com as especificações técnicas e
+            padrões de qualidade estabelecidos.
+          </span>
+        </div>
+        <div class="flex flex-col gap-4">
+          <h2 class="text-xl font-semibold">
+            2.3. Treinamento e Capacitação de Usuários
+          </h2>
+          <span class="text-xl text-justify">
+            Treinamento completo e personalizado para todos os usuários finais
+            quanto à operação dos sistemas. Disponibilização de materiais de
+            apoio e suporte técnico pós-instalação.
+          </span>
+        </div>
+        <div class="flex flex-col gap-4">
+          <h2 class="text-xl font-semibold">
+            2.4. Suporte Técnico e Garantia de Qualidade
+          </h2>
+          <span class="text-xl text-justify">
+            Prestação de suporte técnico contínuo durante o período de garantia
+            e fora de garantia, assegurando a solução rápida de quaisquer
+            problemas que possam surgir. Monitoramento proativo dos sistemas
+            para prevenir falhas e otimizar o desempenho. *A visita técnica é
+            cobrada após o período de garantia de nossos serviços.
+          </span>
+        </div>
+      </div>
+
+      <div class="page-footer"></div>
+    </div>
+
+    <!-- Página 7 -->
+    <div class="page p-8 mx-auto bg-white box-border flex flex-col">
+      <div class="page-header"></div>
+      <div class="flex flex-col flex-grow gap-10 items-center w-full">
+        <h1
+          class="w-full leading-loose text-2xl text-white text-center bg-gray-700 uppercase"
+        >
+          2. CONSTITUI ESCOPO DESTA PROPOSTA
+        </h1>
+
+        <div class="flex flex-col gap-4">
+          <h2 class="text-xl font-semibold">
+            2.5. Integração com Sistemas Existentes
+          </h2>
+          <span class="text-xl text-justify">
+            Verificação sobre a compatibilidade entre os novos equipamentos
+            instalados e os sistemas preexistentes ou adquirido pelo cliente
+            junto a terceiros.
+          </span>
+        </div>
+        <div class="flex flex-col gap-4">
+          <h2 class="text-xl font-semibold">2.6. Avaliação de entrega final</h2>
+          <span class="text-xl text-justify">
+            Realização de uma avaliação final após a conclusão da instalação
+            para assegurar que todas as necessidades do cliente foram atendidas
+            e que o sistema está operando conforme esperado.
+          </span>
+        </div>
+
+        <h1
+          class="w-full leading-loose text-2xl text-white text-center bg-gray-700 uppercase"
+        >
+          3. NÃO CONSTITUI ESCOPO DESTA PROPOSTA
+        </h1>
+        <div class="flex flex-col gap-4">
+          <h2 class="text-xl font-semibold">
+            3.1. Instalação, Configuração e Programação de Equipamentos de
+            Terceiros
+          </h2>
+          <span class="text-xl text-justify">
+            Instalação, configuração e programação de equipamentos e periféricos
+            fornecidos por terceiros que não estejam contemplados no escopo
+            desta proposta.
+          </span>
+        </div>
+        <div class="flex flex-col gap-4">
+          <h2 class="text-xl font-semibold">
+            3.2. Interligação de Sistemas com Equipamentos de Terceiros
+          </h2>
+          <span class="text-xl text-justify">
+            Interligação dos equipamentos com dispositivos fornecidos por
+            terceiros, sem a presença de um profissional qualificado e
+            tecnicamente habilitado pela empresa responsável no momento da
+            interligação.
+          </span>
+        </div>
+      </div>
+
+      <div class="page-footer"></div>
+    </div>
+
+    <!-- Página 8 -->
+    <div class="page p-8 mx-auto bg-white box-border flex flex-col">
+      <div class="page-header"></div>
+      <div class="flex flex-col flex-grow gap-10 items-center w-full">
+        <h1
+          class="w-full leading-loose text-2xl text-white text-center bg-gray-700 uppercase"
+        >
+          3. CONSTITUI ESCOPO DESTA PROPOSTA
+        </h1>
+
+        <div class="flex flex-col gap-4">
+          <h2 class="text-xl font-semibold">
+            3.3. Fornecimento e Instalação de Infraestrutura Elétrica
+          </h2>
+          <span class="text-xl text-justify">
+            Fornecimento e instalação de quadros de distribuição de energia,
+            dispositivos de proteção elétrica (disjuntores, reles, fusíveis,
+            etc.), dispositivos de comando elétrico (chaves seletoras,
+            contatoras, reles, etc.), inversores e/ou conversores de frequência,
+            cabos, e infraestrutura de eletrodutos, leitos e eletrocalhas.
+          </span>
+        </div>
+        <div class="flex flex-col gap-4">
+          <h2 class="text-xl font-semibold">3.4. Integrações Não Previstas</h2>
+          <span class="text-xl text-justify">
+            Integrações com equipamentos ou sistemas que não estejam
+            explicitamente previstos e descritos nesta proposta.
+          </span>
+        </div>
+        <div class="flex flex-col gap-4">
+          <h2 class="text-xl font-semibold">3.5. Obras Civis</h2>
+          <span class="text-xl text-justify">
+            Execução de obras civis, incluindo construção e demolição de lajes,
+            alvenaria, paredes, pisos, forros de gesso ou outros materiais, bem
+            como furações em lajes, vigas, alvenaria, pintura e acabamentos de
+            qualquer espécie.
+          </span>
+        </div>
+        <div class="flex flex-col gap-4">
+          <h2 class="text-xl font-semibold">
+            3.6. Fornecimento de Acessórios Específicos
+          </h2>
+          <span class="text-xl text-justify">
+            Fornecimento de pulsadores, teclados, sensores, ou quaisquer outros
+            acessórios que não estejam detalhados como parte integrante dos
+            equipamentos fornecidos nesta proposta.
+          </span>
+        </div>
+      </div>
+
+      <div class="page-footer"></div>
+    </div>
+
+    <script>
+      function addPageNumbers() {
+        var totalPages = document.getElementsByClassName("page").length;
+        var pages = document.getElementsByClassName("pageNumber");
+        for (var i = 0; i < pages.length; i++) {
+          pages[i].textContent = i + 1;
+        }
+        var total = document.getElementsByClassName("totalPages");
+        for (var i = 0; i < total.length; i++) {
+          total[i].textContent = totalPages;
+        }
+      }
+
+      function addPageHeaders() {
+        const template = document.getElementById("page-header");
+        const headers = document.querySelectorAll(".page-header");
+        headers.forEach((header, index) => {
+          header.appendChild(template.content.cloneNode(true));
+          header.querySelector(".page-number").textContent = `${index + 2}`;
+        });
+      }
+
+      function addPageFooters() {
+        const template = document.getElementById("page-footer");
+        const footers = document.querySelectorAll(".page-footer");
+        footers.forEach((footer, index) => {
+          footer.appendChild(template.content.cloneNode(true));
+        });
+      }
+      window.onload = () => {
+        addPageHeaders();
+        addPageFooters();
+        addPageNumbers();
+      };
+    </script>
+  </body>
+</html>
