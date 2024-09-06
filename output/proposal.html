@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Proposta Comercial - {{clienteName}}</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/extenso@2.0.1/dist/extenso.min.js"></script>
     <style>
       body {
         -webkit-font-smoothing: antialiased;
@@ -469,7 +471,7 @@
         <h1
           class="w-full leading-loose text-2xl text-white text-center bg-gray-700 uppercase"
         >
-          3. CONSTITUI ESCOPO DESTA PROPOSTA
+          4. ESPECIFICAÇÕES E VALORES DAS SOLUÇÕES
         </h1>
 
         <div class="flex flex-col gap-4">
@@ -515,7 +517,239 @@
       <div class="page-footer"></div>
     </div>
 
+    <!-- Página 9 e Subsequentes - Valores das Soluções -->
+    <script id="orders-items" type="text/x-handlebars-template">
+      {{#each orders}}
+        <div class="page p-8 mx-auto bg-white box-border flex flex-col">
+          <div class="page-header"></div>
+          <div class="flex flex-col flex-grow gap-10 items-center w-full">
+            {{#if @first}}
+              <h1
+                class="w-full leading-loose text-2xl text-white text-center bg-gray-700 uppercase"
+              >
+                4. ESPECIFICAÇÕES E VALORES DAS SOLUÇÕES
+              </h1>
+            {{/if}}
+
+            <div class="flex flex-col gap-8 w-full">
+              <div class="flex flex-col gap-4">
+                <h2
+                  class="text-2xl font-semibold uppercase bg-slate-300 leading-loose text-center"
+                >{{orderTitle}}</h2>
+                <table class="w-full text-md">
+                  <thead>
+                    <tr>
+                      <th class="text-left">Item</th>
+                      <th class="text-left">Descrição</th>
+                      <th class="text-right">Quantidade</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {{#each items}}
+                      <tr>
+                        <td class="border">{{add @index 1}}</td>
+                        <td
+                          class="border font-semibold uppercase"
+                        >{{itemDescription}}</td>
+                        <td class="border text-right w-0">{{itemQuantity}}</td>
+                      </tr>
+                    {{/each}}
+                  </tbody>
+                </table>
+                <p class="text-md font-bold text-right">Valor: R$
+                  {{orderValue}}</p>
+                <h3 class="text-md font-semibold">Serviço Automatize:</h3>
+                <p
+                  class="text-md whitespace-pre-line"
+                >{{serviceDescription}}</p>
+
+              </div>
+            </div>
+          </div>
+
+          <div class="page-footer"></div>
+        </div>
+      {{/each}}
+    </script>
+    <!-- Página 9 e Subsequentes - Valores das Soluções serão renderizadas aqui -->
+    <div id="orders-items-content"></div>
+
+    <!-- Página Resumo Valores das Soluções -->
+    <script id="orders" type="text/x-handlebars-template">
+      <div class="page p-8 mx-auto bg-white box-border flex flex-col">
+        <div class="page-header"></div>
+        <div class="flex flex-col flex-grow gap-10 items-center w-full">
+          <h1
+            class="w-full leading-loose text-2xl text-white text-center bg-gray-700 uppercase"
+          >
+            5. RESUMO - VALORES DAS SOLUÇÕES
+          </h1>
+
+          <div class="flex flex-col gap-8 w-full">
+            <div class="flex flex-col gap-4">
+              <table class="w-full text-md">
+                <thead>
+                  <tr>
+                    <th class="text-left">Item</th>
+                    <th class="text-left">Solução</th>
+                    <th class="text-right">Valor</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {{#each orders}}
+                    <tr>
+                      <td class="border">{{add @index 1}}</td>
+                      <td
+                        class="border font-semibold uppercase"
+                      >{{orderTitle}}</td>
+                      <td class="border text-right">{{orderValue}}</td>
+                    </tr>
+                  {{/each}}
+                </tbody>
+              </table>
+              <p class="text-md font-bold text-right">Valor Total: R$
+                {{proposalTotalValue}}
+                <br />
+                ({{extenso proposalTotalValue}}
+                reais)
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="page-footer"></div>
+      </div>
+    </script>
+    <!-- Página Resumos de Valores das Soluções serão renderizadas aqui -->
+    <div id="orders-content"></div>
+
     <script>
+      var data = {
+        paymentCondition: "Pagamento em 03 (três) parcelas iguais.",
+        executionTime: "60 dias após a liberação da obra.",
+        proposalDate: "02.Setembro.2024",
+        customerName: "John Smith",
+        projectType: "Solução de Tecnologias para Automação Residencial",
+        proposalTotalValue: "1.802.547,00",
+        orders: [
+          {
+            orderTitle: "Sugestão de Áudio e Vídeo",
+            orderValue: "1.000.000,00",
+            serviceDescription:
+              "Instalação, configuração e treinamento dos equipamentos acima \nAcompanhamento de obra e supervisão \nInstalação e configuração do sistema de áudio dividido em:\nSala de estar / jantar: 4 caixas de embutir no teto (cliente já adquiriu);\nCozinha: 2 caixas de embutir no teto (cliente já adquiriu);\nGourmet 1: 4 caixas de embutir no teto (cliente já adquiriu);\nGourmet 2: 4 caixas de embutir no teto (cliente já adquiriu);\nPiscina 1: Sonorização com 2 caixas satélites;\nPiscina 2: Sonorização com 2 caixas satélites.",
+            items: [
+              {
+                itemDescription: "Smart TV 4K 55 polegadas",
+                itemQuantity: 1,
+              },
+              {
+                itemDescription: "Soundbar com subwoofer sem fio",
+                itemQuantity: 2,
+              },
+              {
+                itemDescription: "Receiver AV 7.1 canais",
+                itemQuantity: 1,
+              },
+              {
+                itemDescription: "Caixas de som satélite",
+                itemQuantity: 5,
+              },
+              {
+                itemDescription: "Subwoofer ativo 12 polegadas",
+                itemQuantity: 1,
+              },
+              {
+                itemDescription: "Projetor 4K HDR",
+                itemQuantity: 1,
+              },
+              {
+                itemDescription: "Tela de projeção retrátil 120 polegadas",
+                itemQuantity: 1,
+              },
+              {
+                itemDescription: "Cabo HDMI 2.1 de alta velocidade",
+                itemQuantity: 4,
+              },
+              {
+                itemDescription: "Media player 4K com suporte a Dolby Atmos",
+                itemQuantity: 1,
+              },
+              {
+                itemDescription: "Controle remoto universal programável",
+                itemQuantity: 2,
+              },
+            ],
+          },
+          {
+            orderTitle: "Sugestão de Automação",
+            orderValue: "800.000,00",
+            serviceDescription:
+              "Instalação, configuração e treinamento dos equipamentos acima \nAcompanhamento de obra e supervisão \nInstalação e configuração do sistema de áudio dividido em:\nSala de estar / jantar: 4 caixas de embutir no teto (cliente já adquiriu);\nCozinha: 2 caixas de embutir no teto (cliente já adquiriu);\nGourmet 1: 4 caixas de embutir no teto (cliente já adquiriu);\nGourmet 2: 4 caixas de embutir no teto (cliente já adquiriu);\nPiscina 1: Sonorização com 2 caixas satélites;\nPiscina 2: Sonorização com 2 caixas satélites.",
+            items: [
+              {
+                itemDescription: "Smart TV 4K 55 polegadas",
+                itemQuantity: 1,
+              },
+              {
+                itemDescription: "Soundbar com subwoofer sem fio",
+                itemQuantity: 2,
+              },
+              {
+                itemDescription: "Receiver AV 7.1 canais",
+                itemQuantity: 1,
+              },
+              {
+                itemDescription: "Caixas de som satélite",
+                itemQuantity: 5,
+              },
+              {
+                itemDescription: "Subwoofer ativo 12 polegadas",
+                itemQuantity: 1,
+              },
+              {
+                itemDescription: "Projetor 4K HDR",
+                itemQuantity: 1,
+              },
+              {
+                itemDescription: "Tela de projeção retrátil 120 polegadas",
+                itemQuantity: 1,
+              },
+              {
+                itemDescription: "Cabo HDMI 2.1 de alta velocidade",
+                itemQuantity: 4,
+              },
+              {
+                itemDescription: "Media player 4K com suporte a Dolby Atmos",
+                itemQuantity: 1,
+              },
+              {
+                itemDescription: "Controle remoto universal programável",
+                itemQuantity: 2,
+              },
+            ],
+          },
+        ],
+      };
+
+      Handlebars.registerHelper("add", function (value, addition) {
+        return value + addition;
+      });
+
+      Handlebars.registerHelper("extenso", function (value) {
+        return extenso(value);
+      });
+
+      function compileAndRenderTemplate(templateId, targetId, data) {
+        const source = document.getElementById(templateId).innerHTML;
+        const template = Handlebars.compile(source);
+        const html = template(data);
+        document.getElementById(targetId).innerHTML = html;
+      }
+
+      // Usar a função para os dois templates
+      compileAndRenderTemplate("orders-items", "orders-items-content", data);
+      compileAndRenderTemplate("orders", "orders-content", data);
+
       function addPageNumbers() {
         var totalPages = document.getElementsByClassName("page").length;
         var pages = document.getElementsByClassName("pageNumber");
