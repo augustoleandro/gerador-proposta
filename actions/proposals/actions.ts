@@ -6,6 +6,11 @@ import { formProposalSchema } from "@/schemas/formProsposalSchema";
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
+import fs from "fs/promises";
+import handlebars from "handlebars";
+import path from "path";
+import puppeteer from "puppeteer";
+
 export async function createProposal(data: FormData) {
   const supabase = createClient();
   const user = await supabase.auth.getUser();
@@ -34,7 +39,7 @@ export async function createProposal(data: FormData) {
         project_type: proposalData.project_type,
         doc_revision: proposalData.doc_revision,
         execution_time: proposalData.execution_time,
-        created_by: (await supabase.auth.getUser()).data.user?.id || null,
+        created_by: user.data.user?.id || null,
       },
     ])
     .select();
@@ -91,6 +96,38 @@ export async function createProposal(data: FormData) {
         throw new Error(`Error saving order item: ${itemError.message}`);
       }
     }
+  }
+
+  // Generate PDF
+  const pdfBuffer = await generatePDF(proposalData);
+
+  // Save PDF to Supabase storage
+  const fileName = `pdfs/proposal_${proposal[0].id}.pdf`;
+  const { data: file, error: uploadError } = await supabase.storage
+    .from("files")
+    .upload(fileName, pdfBuffer, {
+      contentType: "application/pdf",
+    });
+
+  if (uploadError) {
+    throw new Error(`Error uploading PDF: ${uploadError.message}`);
+  }
+
+  // Get public URL for the uploaded file
+  const { data: publicUrlData } = supabase.storage
+    .from("files")
+    .getPublicUrl(fileName);
+
+  // Update proposal with doc_link
+  const { error: updateError } = await supabase
+    .from("proposals")
+    .update({ doc_link: publicUrlData.publicUrl })
+    .eq("id", proposal[0].id);
+
+  if (updateError) {
+    throw new Error(
+      `Error updating proposal with doc_link: ${updateError.message}`
+    );
   }
 
   console.log(
@@ -316,4 +353,29 @@ export async function getProposalById(id: string): Promise<Proposal> {
     ...proposalData,
     orders: processedOrders || [],
   };
+}
+
+async function generatePDF(proposalData: any) {
+  // Read the HTML template
+  const templatePath = path.join(
+    process.cwd(),
+    "public",
+    "output",
+    "proposal.html"
+  );
+  const templateContent = await fs.readFile(templatePath, "utf-8");
+
+  // Compile the template
+  const template = handlebars.compile(templateContent);
+
+  // Render the HTML with the proposal data
+  const html = template(proposalData);
+
+  // Generate PDF
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  await page.setContent(html);
+  const pdfBuffer = await page.pdf({ format: "A4" });
+  await browser.close();
+  return pdfBuffer;
 }

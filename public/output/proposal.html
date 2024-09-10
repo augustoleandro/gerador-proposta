@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Proposta Comercial - {{clienteName}}</title>
+    <title>Proposta Comercial - {{customer_name}}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/extenso@2.0.1/dist/extenso.min.js"></script>
@@ -89,8 +89,9 @@
     </template>
 
     <!-- Capa - Página 1 -->
-    <div class="page mx-auto p-8 bg-white box-border">
-      <div class="flex flex-col w-full justify-center items-center">
+    <script id="first-page" type="text/x-handlebars-template">
+      <div class="page mx-auto p-8 bg-white box-border">
+        <div class="flex flex-col w-full justify-center items-center">
         <img
           src="./assets/images/logo_vertical.png"
           alt="Logo Automatize"
@@ -103,7 +104,7 @@
           <h1 class="text-[100px] font-semibold uppercase leading-none">
             Comercial
           </h1>
-          <h2 class="text-2xl font-semibold uppercase text-right mr-52">
+          <h2 class="text-2xl font-semibold uppercase text-right mr-40">
             {{proposal_date}} - R{{doc_rev}}
           </h2>
         </div>
@@ -114,10 +115,10 @@
           >
         </div>
         <div class="w-full flex flex-col justify-start mt-32">
-          <h2 class="text-2xl font-semibold uppercase">Preparada para</h2>
+          <h2 class="text-2xl text-gray-500 font-semibold uppercase">Preparada para</h2>
           <h2 class="text-3xl font-semibold uppercase">{{customer_name}}</h2>
           <div class="w-8 h-1 bg-gray-700 mt-16 mb-4"></div>
-          <h3 class="text-lg w-3/4 mt-4 text-justify">
+          <h3 class="text-lg text-gray-500 w-3/4 text-justify">
             Quando você escolhe a Automatize, você está escolhendo uma empresa
             séria e dedicada, pronta para oferecer um atendimento impecável,
             desde o planejamento até a instalação final. Estamos aqui para
@@ -125,7 +126,9 @@
           </h3>
         </div>
       </div>
-    </div>
+    </script>
+    <!-- Renderização da primeira página -->
+    <div id="first-page-content"></div>
 
     <!-- Página 2 -->
     <div class="page p-8 mx-auto bg-white box-border flex flex-col">
@@ -306,43 +309,58 @@
     </div>
 
     <!-- Página 5 -->
-    <div class="page p-8 mx-auto bg-white box-border flex flex-col">
-      <div class="page-header"></div>
-      <div class="flex flex-col flex-grow items-center w-full">
-        <h1
-          class="w-full leading-loose text-2xl text-white text-center bg-gray-700 uppercase"
-        >
-          1. APRESENTAÇÃO
-        </h1>
-        <h2 class="text-2xl uppercase text-center font-semibold mt-16">
-          PROJETO
-        </h2>
-        <h2 class="text-2xl uppercase text-center mt-8">{{customer_name}}</h2>
-        <h2 class="text-2xl uppercase text-center font-semibold mt-16">
-          FINALIDADE
-        </h2>
-        <h2 class="text-2xl uppercase text-center mt-8">{{project_type}}</h2>
-        <span class="text-xl text-justify mt-16">
-          A <b>AUTOMATIZE</b>, com sedes na Rua 1.131, 568 - Setor Marista em
-          Goiânia-GO e SHIS QI26 LT09 - Lago Sul em Brasília-DF, tem o prazer de
-          apresentar a seguinte proposta para a execução dos serviços em
-          referência, incluindo o fornecimento de todos os materiais necessários
-          e mão de obra especializada.
-          <br />
-          <br />
-          A <b>AUTOMATIZE</b> segue rigorosamente as normas estabelecidas pela
-          Associação Brasileira de Normas Técnicas (ABNT). Na ausência de normas
-          nacionais, utilizamos as normas internacionais aplicáveis para
-          garantir a qualidade e a conformidade dos serviços prestados. Ao
-          aprovar esta proposta, nossa equipe de engenharia assumirá a
-          responsabilidade técnica perante o CREA-GO, incluindo o registro e
-          recolhimento da Anotação de Responsabilidade Técnica (ART) quando
-          necessário.
-        </span>
-      </div>
+    <script id="fifth-page" type="text/x-handlebars-template">
+      <div class="page p-8 mx-auto bg-white box-border flex flex-col">
+        <div class="page-header"></div>
+        <div class="flex flex-col flex-grow items-center w-full">
+          <h1
+            class="w-full leading-loose text-2xl text-white text-center bg-gray-700 uppercase"
+          >
+            1. APRESENTAÇÃO
+          </h1>
+          <h2
+            class="text-2xl uppercase text-center text-gray-500 font-semibold mt-16"
+          >
+            PROJETO
+          </h2>
+          <h2
+            class="text-2xl uppercase font-semibold text-center mt-8"
+          >{{customer_name}}</h2>
+          <h2
+            class="text-2xl uppercase text-center text-gray-500 font-semibold mt-16"
+          >
+            FINALIDADE
+          </h2>
+          <h2
+            class="text-2xl uppercase font-semibold text-center mt-8"
+          >{{project_type}}</h2>
+          <span class="text-xl text-justify mt-16">
+            A
+            <b>AUTOMATIZE</b>, com sedes na Rua 1.131, 568 - Setor Marista em
+            Goiânia-GO e SHIS QI26 LT09 - Lago Sul em Brasília-DF, tem o prazer
+            de apresentar a seguinte proposta para a execução dos serviços em
+            referência, incluindo o fornecimento de todos os materiais
+            necessários e mão de obra especializada.
+            <br />
+            <br />
+            A
+            <b>AUTOMATIZE</b>
+            segue rigorosamente as normas estabelecidas pela Associação
+            Brasileira de Normas Técnicas (ABNT). Na ausência de normas
+            nacionais, utilizamos as normas internacionais aplicáveis para
+            garantir a qualidade e a conformidade dos serviços prestados. Ao
+            aprovar esta proposta, nossa equipe de engenharia assumirá a
+            responsabilidade técnica perante o CREA-GO, incluindo o registro e
+            recolhimento da Anotação de Responsabilidade Técnica (ART) quando
+            necessário.
+          </span>
+        </div>
 
-      <div class="page-footer"></div>
-    </div>
+        <div class="page-footer"></div>
+      </div>
+    </script>
+    <!-- Renderização da quinta página -->
+    <div id="fifth-page-content"></div>
 
     <!-- Página 6 -->
     <div class="page p-8 mx-auto bg-white box-border flex flex-col">
@@ -471,7 +489,7 @@
         <h1
           class="w-full leading-loose text-2xl text-white text-center bg-gray-700 uppercase"
         >
-          4. ESPECIFICAÇÕES E VALORES DAS SOLUÇÕES
+          3. NÃO CONSTITUI ESCOPO DESTA PROPOSTA
         </h1>
 
         <div class="flex flex-col gap-4">
@@ -550,18 +568,18 @@
                         <td class="border">{{add @index 1}}</td>
                         <td
                           class="border font-semibold uppercase"
-                        >{{itemDescription}}</td>
-                        <td class="border text-right w-0">{{itemQuantity}}</td>
+                        >{{item_description}}</td>
+                        <td class="border text-right w-0">{{item_quantity}}</td>
                       </tr>
                     {{/each}}
                   </tbody>
                 </table>
                 <p class="text-md font-bold text-right">Valor: R$
-                  {{orderValue}}</p>
+                  {{order_value}}</p>
                 <h3 class="text-md font-semibold">Serviço Automatize:</h3>
                 <p
                   class="text-md whitespace-pre-line"
-                >{{serviceDescription}}</p>
+                >{{service_description}}</p>
 
               </div>
             </div>
@@ -578,14 +596,14 @@
     <script id="orders" type="text/x-handlebars-template">
       <div class="page p-8 mx-auto bg-white box-border flex flex-col">
         <div class="page-header"></div>
-        <div class="flex flex-col flex-grow gap-10 items-center w-full">
+        <div class="flex flex-col flex-grow items-center w-full">
           <h1
             class="w-full leading-loose text-2xl text-white text-center bg-gray-700 uppercase"
           >
             5. RESUMO - VALORES DAS SOLUÇÕES
           </h1>
 
-          <div class="flex flex-col gap-8 w-full">
+          <div class="flex flex-col w-full">
             <div class="flex flex-col gap-4">
               <table class="w-full text-md">
                 <thead>
@@ -601,16 +619,16 @@
                       <td class="border">{{add @index 1}}</td>
                       <td
                         class="border font-semibold uppercase"
-                      >{{orderTitle}}</td>
-                      <td class="border text-right">{{orderValue}}</td>
+                      >{{order_title}}</td>
+                      <td class="border text-right">{{order_value}}</td>
                     </tr>
                   {{/each}}
                 </tbody>
               </table>
               <p class="text-md font-bold text-right">Valor Total: R$
-                {{proposalTotalValue}}
+                {{proposal_total_value}}
                 <br />
-                ({{extenso proposalTotalValue}}
+                ({{extenso proposal_total_value}}
                 reais)
               </p>
             </div>
@@ -623,6 +641,82 @@
     <!-- Página Resumos de Valores das Soluções serão renderizadas aqui -->
     <div id="orders-content"></div>
 
+    <!-- Última Página -->
+    <script id="last-page" type="text/x-handlebars-template">
+      <div class="page p-8 mx-auto bg-white box-border flex flex-col">
+        <div class="page-header"></div>
+        <div class="flex flex-col flex-grow gap-8 w-full">
+          <div class="flex flex-col gap-4 w-full">
+            <h1
+              class="w-full leading-loose text-2xl text-white text-center bg-gray-700 uppercase"
+            >
+              6. PAGAMENTO
+            </h1>
+
+            <div class="flex flex-col gap-4">
+              <h2 class="text-xl font-semibold">6.1. Condições de Pagamento</h2>
+              <span class="text-lg text-justify"> {{payment_condition}} </span>
+            </div>
+            <div class="flex flex-col gap-4">
+              <h2 class="text-xl font-semibold">6.2. Prazo de Execução</h2>
+              <span class="text-lg text-justify"> {{execution_time}} </span>
+            </div>
+          </div>
+          <div class="flex flex-col gap-4 w-full">
+            <h1
+              class="w-full leading-loose text-2xl text-white text-center bg-gray-700 uppercase"
+            >
+              7. VALIDADE DA PROPOSTA
+            </h1>
+
+            <span class="text-lg text-justify">
+              Esta proposta tem validade por
+              <b>15 dias</b>, contados a partir desta data, após o qual ficará
+              sujeita à nossa confirmação. Alterações nos projetos poderão
+              resultar em modificações na proposta.
+            </span>
+          </div>
+          <div class="flex flex-col gap-4 w-full">
+            <h1
+              class="w-full leading-loose text-2xl text-white text-center bg-gray-700 uppercase"
+            >
+              8. GARANTIA
+            </h1>
+
+            <span class="text-lg text-justify">
+              A AUTOMATIZE garante os serviços executados pelo prazo de 12
+              (doze) meses contra qualquer defeito nas instalações, desde que as
+              mesmas sejam utilizadas em condições normais de operação. A
+              garantia dos materiais a serem aplicados na obra será de
+              responsabilidade dos respectivos fabricantes, cabendo a Automatize
+              acioná-los para os procedimentos de reposições, manutenções ou
+              reparos necessários. A garantia dos equipamentos, materiais e
+              serviços não abrange casos de mau uso, atos de vandalismo,
+              intempéries, incêndio ou outras questões que não sejam
+              provenientes de falha, defeito de fabricação ou montagem.
+              <br />
+              <br />
+              Atenciosamente,
+              <br />
+
+              Diretoria Automatize:
+              <br />
+              Eng. Elet. RAPHAEL SANTOMÉ LEAO REIS – CREA 18.274/D-GO
+              <br />
+              Eng. Elet. LEANDRO AUGUSTO RIBEIRO MACHADO - CREA 16.168/D-GO
+              <br />
+              Eng. Elet. GILBERTO DE NAZARÉ RIBEIRO – CREA 5.486/D-GO
+              <br />
+            </span>
+          </div>
+        </div>
+
+        <div class="page-footer"></div>
+      </div>
+    </script>
+    <!-- Última Página será renderizada aqui -->
+    <div id="last-page-content"></div>
+
     <script>
       var data = {
         paymentCondition: "Pagamento em 03 (três) parcelas iguais.",
@@ -631,6 +725,7 @@
         customerName: "John Smith",
         projectType: "Solução de Tecnologias para Automação Residencial",
         proposalTotalValue: "1.802.547,00",
+        docRev: "00",
         orders: [
           {
             orderTitle: "Sugestão de Áudio e Vídeo",
@@ -746,9 +841,11 @@
         document.getElementById(targetId).innerHTML = html;
       }
 
-      // Usar a função para os dois templates
       compileAndRenderTemplate("orders-items", "orders-items-content", data);
       compileAndRenderTemplate("orders", "orders-content", data);
+      compileAndRenderTemplate("first-page", "first-page-content", data);
+      compileAndRenderTemplate("fifth-page", "fifth-page-content", data);
+      compileAndRenderTemplate("last-page", "last-page-content", data);
 
       function addPageNumbers() {
         var totalPages = document.getElementsByClassName("page").length;
