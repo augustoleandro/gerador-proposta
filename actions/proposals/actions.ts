@@ -1,15 +1,12 @@
 "use server";
 
+import generatePdf from "@/lib/generatePdf";
 import { Category, Proposal } from "@/lib/types";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { formProposalSchema } from "@/schemas/formProsposalSchema";
 import { createClient } from "@/utils/supabase/server";
+import { format } from "date-fns";
 import { revalidatePath } from "next/cache";
-
-import fs from "fs/promises";
-import handlebars from "handlebars";
-import path from "path";
-import puppeteer from "puppeteer";
 
 export async function createProposal(data: FormData) {
   const supabase = createClient();
@@ -99,10 +96,14 @@ export async function createProposal(data: FormData) {
   }
 
   // Generate PDF
-  const pdfBuffer = await generatePDF(proposalData);
+  //const pdfBuffer = await generatePDF(proposalData);
 
   // Save PDF to Supabase storage
-  const fileName = `pdfs/proposal_${proposal[0].id}.pdf`;
+  const formattedDate = format(proposalData.proposal_date, "ddMMyyyy");
+  const fileName = `pdfs/PROPOSTA-AUTOMATIZE-${proposalData.customer_name}-${formattedDate}-REV${proposalData.doc_revision}.pdf`;
+
+  const pdfBuffer = await generatePdf(proposalData);
+
   const { data: file, error: uploadError } = await supabase.storage
     .from("files")
     .upload(fileName, pdfBuffer, {
@@ -353,29 +354,4 @@ export async function getProposalById(id: string): Promise<Proposal> {
     ...proposalData,
     orders: processedOrders || [],
   };
-}
-
-async function generatePDF(proposalData: any) {
-  // Read the HTML template
-  const templatePath = path.join(
-    process.cwd(),
-    "public",
-    "output",
-    "proposal.html"
-  );
-  const templateContent = await fs.readFile(templatePath, "utf-8");
-
-  // Compile the template
-  const template = handlebars.compile(templateContent);
-
-  // Render the HTML with the proposal data
-  const html = template(proposalData);
-
-  // Generate PDF
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-  await page.setContent(html);
-  const pdfBuffer = await page.pdf({ format: "A4" });
-  await browser.close();
-  return pdfBuffer;
 }
