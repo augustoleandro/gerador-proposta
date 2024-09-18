@@ -1,6 +1,5 @@
 "use server";
 
-import generatePdf from "@/lib/generatePdf";
 import { Category, Proposal } from "@/lib/types";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { formProposalSchema } from "@/schemas/formProsposalSchema";
@@ -96,17 +95,30 @@ export async function createProposal(data: FormData) {
   }
 
   // Generate PDF
-  //const pdfBuffer = await generatePDF(proposalData);
+  const pdf = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/generate-pdf`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(proposalData),
+    }
+  );
+  if (!pdf.ok) {
+    const errorText = await pdf.text();
+    console.error("PDF generation failed:", pdf.status, errorText);
+    throw new Error(`Falha ao gerar PDF: ${pdf.status} ${errorText}`);
+  }
+  const pdfBlob = await pdf.blob();
 
   // Save PDF to Supabase storage
   const formattedDate = format(proposalData.proposal_date, "ddMMyyyy");
   const fileName = `pdfs/PROPOSTA-AUTOMATIZE-${proposalData.customer_name}-${formattedDate}-REV${proposalData.doc_revision}.pdf`;
 
-  const pdfBuffer = await generatePdf(proposalData);
-
   const { data: file, error: uploadError } = await supabase.storage
     .from("files")
-    .upload(fileName, pdfBuffer, {
+    .upload(fileName, pdfBlob, {
       contentType: "application/pdf",
     });
 

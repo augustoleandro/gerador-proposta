@@ -1,0 +1,186 @@
+/* Estilos gerais */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-family: sans-serif;
+  color: #4a5568;
+  font-size: 16px;
+  margin: 0;
+  padding: 0;
+}
+
+/* Estilos de impressão */
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media print {
+  body {
+    width: 210mm;
+    height: 297mm;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .page {
+    margin: 0;
+    //border: initial;
+    border-radius: initial;
+    width: initial;
+    min-height: initial;
+    box-shadow: initial;
+    background: initial;
+    page-break-after: always;
+  }
+}
+
+/* Estilos da página */
+.page {
+  width: 210mm;
+  height: 297mm;
+  //border: 1px solid #ccc;
+  background-image: url("https://cnxfzvkctgksepdayrpg.supabase.co/storage/v1/object/sign/files/images/proposal_background.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJmaWxlcy9pbWFnZXMvcHJvcG9zYWxfYmFja2dyb3VuZC5wbmciLCJpYXQiOjE3MjY2NjUyMzUsImV4cCI6MTg4NDM0NTIzNX0.A-V4cW6Aj-S1xxAp6hpfBeMq63N5nDaFHDQDTjcxrEY&t=2024-09-18T13%3A13%3A55.806Z");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  overflow: hidden;
+  padding: 2rem;
+  margin: 0 auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Cabeçalho da página */
+.page-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.page-header img {
+  width: 200px;
+}
+
+/* Rodapé da página */
+.page-footer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+/* Páginas com duas colunas */
+
+.page-columns {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.page-columns > * {
+  width: 48%; /* Adjust as needed, leaving some gap between columns */
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  justify-content: start;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  width: 50%;
+}
+
+.card-title {
+  font-size: 24px;
+  font-weight: 600;
+  text-transform: uppercase;
+  height: 56px;
+}
+
+.card-content {
+  font-size: 18px;
+  font-weight: 400;
+  text-align: justify;
+  line-height: 1.5;
+}
+
+/* Estilos de texto */
+
+.page-title {
+  font-size: 48px;
+  letter-spacing: 2px;
+  font-weight: 400;
+}
+
+.page-content-title {
+  font-size: 30px;
+  font-weight: 400;
+  text-transform: uppercase;
+  background-color: #4a5568;
+  color: #ffffff;
+  padding: 10px 10px;
+  width: 100%;
+  text-align: center;
+}
+
+/* Tabelas */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  border: 1px solid #e2e8f0;
+  padding: 0.5rem;
+}
+
+th {
+  text-align: left;
+}
+
+.h1 {
+  font-size: 100px;
+  font-weight: 600;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.h2 {
+  font-size: 24px;
+  font-weight: 600;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.h3 {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.line {
+  width: 50px;
+  height: 3px;
+  background-color: #4a5568;
+  margin: 10px 0;
+}
