@@ -1,8 +1,7 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { badgeVariants, Category, Proposal } from "@/lib/types";
+import { Proposal } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, Download, EyeIcon } from "lucide-react";
 import Link from "next/link";
@@ -12,7 +11,7 @@ export const ColumnProposalTable: ColumnDef<Proposal>[] = [
     accessorKey: "customer_name",
     header: ({ column }) => {
       return (
-        <div className="flex items-center justify-start">
+        <div className="w-64 flex items-center justify-start">
           Cliente
           <Button
             className="p-2 hover:bg-transparent"
@@ -24,8 +23,13 @@ export const ColumnProposalTable: ColumnDef<Proposal>[] = [
         </div>
       );
     },
+    cell: ({ cell }) => (
+      <div className="overflow-hidden text-ellipsis">
+        {cell.getValue() as string}
+      </div>
+    ),
   },
-  {
+  /* {
     accessorKey: "categories",
     header: "Categorias",
     cell: ({ row }) => {
@@ -40,7 +44,7 @@ export const ColumnProposalTable: ColumnDef<Proposal>[] = [
         </Badge>
       ));
     },
-  },
+  }, */
   {
     accessorKey: "proposal_total_value",
     header: "Valor",
@@ -55,12 +59,14 @@ export const ColumnProposalTable: ColumnDef<Proposal>[] = [
   },
   {
     id: "actions",
-    header: "",
+    header: ({ column }) => {
+      return <div className="w-16"></div>;
+    },
     cell: ({ row }) => {
       const proposalId: string = row.original.id || "";
       const docLink: string = row.original.doc_link || "#";
       return (
-        <div className="flex items-center justify-end space-x-2">
+        <div className="w-full flex items-center justify-end space-x-2">
           <Link href={`/propostas/${proposalId}`} className="link-button">
             <EyeIcon className="w-5 h-5" />
           </Link>

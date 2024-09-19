@@ -80,7 +80,7 @@ export function DataProposalTable<TData, TValue>({
         </div>
       </div>
       <div className="rounded-md border">
-        <Table className="table-fixed w-full">
+        <Table className="w-full">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -119,7 +119,7 @@ export function DataProposalTable<TData, TValue>({
                           : "text-right"
                       } whitespace-nowrap overflow-hidden text-ellipsis`}
                     >
-                      <div className="max-w-[200px] overflow-hidden text-ellipsis">
+                      <div>
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
@@ -154,31 +154,31 @@ export function DataProposalTable<TData, TValue>({
                   .rows.length.toString()
                   .padStart(2, "0")} propostas`}
           </span>
-
-          <span className="text-sm text-secondary-foreground">
-            {table.getState().pagination.pageIndex + 1} de{" "}
-            {table.getPageCount()}
-          </span>
-          <Button
-            variant="default"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-            className={`${!table.getCanPreviousPage() && "hidden"}`}
-          >
-            <ChevronLeft className="h-4 w-4 mr-2" />
-            Anterior
-          </Button>
-          <Button
-            variant="default"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-            className={`${!table.getCanNextPage() && "hidden"}`}
-          >
-            Próxima
-            <ChevronRight className="h-4 w-4 ml-2" />
-          </Button>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-secondary-foreground">
+              {`(${
+                table.getState().pagination.pageIndex + 1
+              } de ${table.getPageCount()})`}
+            </span>
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+              className={`${!table.getCanPreviousPage() && "hidden"}`}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+              className={`${!table.getCanNextPage() && "hidden"} align-middle`}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       )}
     </div>
