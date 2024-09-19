@@ -117,12 +117,14 @@ export function DataProposalTable<TData, TValue>({
                         cell.column.id === "customer_name"
                           ? "text-left"
                           : "text-right"
-                      }`}
+                      } whitespace-nowrap overflow-hidden text-ellipsis`}
                     >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
+                      <div className="max-w-[200px] overflow-hidden text-ellipsis">
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </div>
                     </TableCell>
                   ))}
                 </TableRow>

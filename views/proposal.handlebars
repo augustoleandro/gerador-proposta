@@ -745,94 +745,141 @@
     </div>
 
     {{#each orders}}
-    <div class="page">
-      <div class="page-header">
-        <img src="https://cnxfzvkctgksepdayrpg.supabase.co/storage/v1/object/sign/files/images/logo_horizontal.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJmaWxlcy9pbWFnZXMvbG9nb19ob3Jpem9udGFsLnBuZyIsImlhdCI6MTcyNjY2NTE2MCwiZXhwIjoxODg0MzQ1MTYwfQ.y4eOkMnXn_QnDdCkyE7nB8W0UMJN_P06Z--IHosJAp0&t=2024-09-18T13%3A12%3A40.846Z" alt="Logo Automatize" />
-        <span class="page-number"></span>
-      </div>
-
-      
-      <div class="page-content">
-        {{#if @first}}
-        <span class="page-content-title">
-          4. ESPECIFICAÇÕES E VALORES DAS SOLUÇÕES
-        </span>
-        {{/if}}
-
-        <div
-          style="
-            display: flex;
-            flex-direction: column;
-            align-items: start;
-            gap: 16px;
-            margin-top: 48px;
-            width: 100%;
-          "
-        >
-          <span class="h2">{{description}}</span>
-          <table class="w-full text-md">
-            <thead>
-              <tr>
-                <th style="text-align: left">Item</th>
-                <th style="text-align: left">Descrição</th>
-                <th style="text-align: right">Quantidade</th>
-              </tr>
-            </thead>
-            <tbody>
-              {{#each items}}
-              <tr>
-                <td>{{add @index 1}}</td>
-                <td style="font-size: 12px">{{name}}</td>
-                <td style="text-align: right">{{quantity}}</td>
-              </tr>
-              {{/each}}
-            </tbody>
-          </table>
-
-          </table>
-          <p style="width: 100%; text-align: right; font-weight: bold">
-            Valor da Solução: {{formatCurrency value}}
-          </p>
-          <span class="h3"> Serviço Automatize: </span>
-          <p style="text-align: justify; line-height: 1.5">
-            {{service_description}}
-          </p>
+  {{#with this as |order|}}
+    {{#each (chunkWithLast items 20 16)}}
+      <div class="page">
+        <div class="page-header">
+          <img src="https://cnxfzvkctgksepdayrpg.supabase.co/storage/v1/object/sign/files/images/logo_horizontal.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJmaWxlcy9pbWFnZXMvbG9nb19ob3Jpem9udGFsLnBuZyIsImlhdCI6MTcyNjY2NTE2MCwiZXhwIjoxODg0MzQ1MTYwfQ.y4eOkMnXn_QnDdCkyE7nB8W0UMJN_P06Z--IHosJAp0&t=2024-09-18T13%3A12%3A40.846Z" alt="Logo Automatize" />
+          <span class="page-number"></span>
         </div>
-      </div>
+        
+        <div class="page-content">
+          {{#if @first}}
+            {{#if @../first}}
+              <span class="page-content-title">
+                4. ESPECIFICAÇÕES E VALORES DAS SOLUÇÕES
+              </span>
+            {{/if}}
+          {{/if}}
 
-      <div class="page-footer">
-        <div>
-          <span style="font-size: 14px; letter-spacing: 2px">
-            WWW.AUTOMATIZE.COM.BR
-          </span>
-          <div
-            style="
-              display: flex;
-              flex-direction: row;
-              align-items: center;
-              gap: 2px;
-            "
-          >
-            <img
-              src="https://cnxfzvkctgksepdayrpg.supabase.co/storage/v1/object/sign/files/images/instagram_icon.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJmaWxlcy9pbWFnZXMvaW5zdGFncmFtX2ljb24ucG5nIiwiaWF0IjoxNzI2NjY1Mjg1LCJleHAiOjE4ODQzNDUyODV9.e_8pe6GZZ3bsYe7CtDD5PZFHWRI86eGeJHtNGygen6U&t=2024-09-18T13%3A14%3A45.692Z"
-              alt="Logo Instagram"
-              width="36px"
-            />
-            <span
-              style="margin-left: 4px; font-size: 14px; letter-spacing: 2px"
-            >
-              @AUTOMATIZEOFICIAL
-            </span>
+          <div style="display: flex; flex-direction: column; align-items: start; gap: 16px; margin-top: 48px; width: 100%;">
+            {{#if @first}}
+              <span class="h2">{{order.description}}</span>
+            {{/if}}
+            <table class="w-full text-md">
+              {{#if @first}}
+                <thead>
+                  <tr>
+                    <th style="text-align: left">Item</th>
+                    <th style="text-align: left">Descrição</th>
+                    <th style="text-align: right">Quantidade</th>
+                  </tr>
+                </thead>
+              {{/if}}
+              <tbody>
+                {{#each this}}
+                  <tr>
+                    <td>{{calculateItemNumber @../index @index @../last}}</td>
+                    <td style="font-size: 12px">{{name}}</td>
+                    <td style="text-align: right">{{quantity}}</td>
+                  </tr>
+                {{/each}}
+              </tbody>
+            </table>
+
+            {{#if @last}}
+              <p style="width: 100%; text-align: right; font-weight: bold">
+                Valor da Solução: {{formatCurrency order.value}}
+              </p>
+            {{/if}}
           </div>
         </div>
-        <img
-          src="https://cnxfzvkctgksepdayrpg.supabase.co/storage/v1/object/sign/files/images/qr_code.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJmaWxlcy9pbWFnZXMvcXJfY29kZS5wbmciLCJpYXQiOjE3MjY2NjUzMDcsImV4cCI6MTg4NDM0NTMwN30.NaCew2bbys1IEgutESIMnDsrYA1EAEeuTlzUL5OIFVI&t=2024-09-18T13%3A15%3A08.279Z"
-          alt="QR-Code Automatize"
-          width="56px"
-        />
+
+        <div class="page-footer">
+          <div>
+            <span style="font-size: 14px; letter-spacing: 2px">
+              WWW.AUTOMATIZE.COM.BR
+            </span>
+            <div
+              style="
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                gap: 2px;
+              "
+            >
+              <img
+                src="https://cnxfzvkctgksepdayrpg.supabase.co/storage/v1/object/sign/files/images/instagram_icon.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJmaWxlcy9pbWFnZXMvaW5zdGFncmFtX2ljb24ucG5nIiwiaWF0IjoxNzI2NjY1Mjg1LCJleHAiOjE4ODQzNDUyODV9.e_8pe6GZZ3bsYe7CtDD5PZFHWRI86eGeJHtNGygen6U&t=2024-09-18T13%3A14%3A45.692Z"
+                alt="Logo Instagram"
+                width="36px"
+              />
+              <span
+                style="margin-left: 4px; font-size: 14px; letter-spacing: 2px"
+              >
+                @AUTOMATIZEOFICIAL
+              </span>
+            </div>
+          </div>
+          <img
+            src="https://cnxfzvkctgksepdayrpg.supabase.co/storage/v1/object/sign/files/images/qr_code.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJmaWxlcy9pbWFnZXMvcXJfY29kZS5wbmciLCJpYXQiOjE3MjY2NjUzMDcsImV4cCI6MTg4NDM0NTMwN30.NaCew2bbys1IEgutESIMnDsrYA1EAEeuTlzUL5OIFVI&t=2024-09-18T13%3A15%3A08.279Z"
+            alt="QR-Code Automatize"
+            width="56px"
+          />
+        </div>
       </div>
-    </div>
+
+      {{#if @last}}
+        <div class="page">
+          <div class="page-header">
+            <img src="https://cnxfzvkctgksepdayrpg.supabase.co/storage/v1/object/sign/files/images/logo_horizontal.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJmaWxlcy9pbWFnZXMvbG9nb19ob3Jpem9udGFsLnBuZyIsImlhdCI6MTcyNjY2NTE2MCwiZXhwIjoxODg0MzQ1MTYwfQ.y4eOkMnXn_QnDdCkyE7nB8W0UMJN_P06Z--IHosJAp0&t=2024-09-18T13%3A12%3A40.846Z" alt="Logo Automatize" />
+            <span class="page-number"></span>
+          </div>
+          
+          <div class="page-content">
+            <div style="display: flex; flex-direction: column; align-items: start; gap: 16px; margin-top: 48px; width: 100%;">
+              <span class="h3"> Serviço Automatize: </span>
+              <p style="text-align: justify; line-height: 1.5">
+                {{order.service_description}}
+              </p>
+            </div>
+          </div>
+
+          <div class="page-footer">
+            <div>
+              <span style="font-size: 14px; letter-spacing: 2px">
+                WWW.AUTOMATIZE.COM.BR
+              </span>
+              <div
+                style="
+                  display: flex;
+                  flex-direction: row;
+                  align-items: center;
+                  gap: 2px;
+                "
+              >
+                <img
+                  src="https://cnxfzvkctgksepdayrpg.supabase.co/storage/v1/object/sign/files/images/instagram_icon.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJmaWxlcy9pbWFnZXMvaW5zdGFncmFtX2ljb24ucG5nIiwiaWF0IjoxNzI2NjY1Mjg1LCJleHAiOjE4ODQzNDUyODV9.e_8pe6GZZ3bsYe7CtDD5PZFHWRI86eGeJHtNGygen6U&t=2024-09-18T13%3A14%3A45.692Z"
+                  alt="Logo Instagram"
+                  width="36px"
+                />
+                <span
+                  style="margin-left: 4px; font-size: 14px; letter-spacing: 2px"
+                >
+                  @AUTOMATIZEOFICIAL
+                </span>
+              </div>
+            </div>
+            <img
+              src="https://cnxfzvkctgksepdayrpg.supabase.co/storage/v1/object/sign/files/images/qr_code.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJmaWxlcy9pbWFnZXMvcXJfY29kZS5wbmciLCJpYXQiOjE3MjY2NjUzMDcsImV4cCI6MTg4NDM0NTMwN30.NaCew2bbys1IEgutESIMnDsrYA1EAEeuTlzUL5OIFVI&t=2024-09-18T13%3A15%3A08.279Z"
+              alt="QR-Code Automatize"
+              width="56px"
+            />
+          </div>
+        </div>
+      {{/if}}
     {{/each}}
+  {{/with}}
+{{/each}}
 
     <div class="page">
       <div class="page-header">
