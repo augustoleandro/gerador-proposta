@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { generatePDF, loadCSS, renderTemplate } from "@/lib/pdfUtils";
 import { NextResponse } from "next/server";
 
