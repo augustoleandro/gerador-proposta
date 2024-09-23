@@ -39,7 +39,6 @@ import { ptBR } from "date-fns/locale";
 import { CalendarIcon, FileTextIcon, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import Confetti from "react-confetti";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { OrderInput } from "./OrderInput";
@@ -52,8 +51,6 @@ interface FormProposalProps {
 function FormProposal({ proposalId }: FormProposalProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showConfetti, setShowConfetti] = useState(false);
-  const [confettiPosition, setConfettiPosition] = useState({ x: 0, y: 0 });
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   const form = useForm<z.infer<typeof formProposalSchema>>({
@@ -67,21 +64,6 @@ function FormProposal({ proposalId }: FormProposalProps) {
       doc_revision: "00",
     },
   });
-
-  useEffect(() => {
-    function handleResize() {
-      if (buttonRef.current) {
-        const rect = buttonRef.current.getBoundingClientRect();
-        setConfettiPosition({
-          x: rect.left + rect.width / 2,
-          y: rect.top,
-        });
-      }
-    }
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   useEffect(() => {
     async function fetchProposalData() {
@@ -123,15 +105,6 @@ function FormProposal({ proposalId }: FormProposalProps) {
       }
 
       if (result.result === "created") {
-        if (buttonRef.current) {
-          const rect = buttonRef.current.getBoundingClientRect();
-          setConfettiPosition({
-            x: rect.left + rect.width / 2,
-            y: rect.top,
-          });
-        }
-        setShowConfetti(true);
-        setTimeout(() => setShowConfetti(false), 2000);
         toast({
           title: `Proposta criada com sucesso!`,
           variant: "success",
@@ -207,225 +180,200 @@ function FormProposal({ proposalId }: FormProposalProps) {
   const orders = form.watch("orders");
 
   return (
-    <>
-      {showConfetti && (
-        <Confetti
-          width={200}
-          height={200}
-          recycle={false}
-          numberOfPieces={300}
-          confettiSource={{
-            x: confettiPosition.x,
-            y: confettiPosition.y,
-            w: 0,
-            h: 0,
-          }}
-          style={{
-            position: "fixed",
-            pointerEvents: "none",
-            zIndex: 1000,
-            inset: 0,
-          }}
-        />
-      )}
-
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit, (errors) =>
-            console.error("Form validation errors:", errors)
-          )}
-          className="flex flex-col"
-        >
-          <div className="space-y-4">
-            <div className="flex items-end gap-4">
-              <FormField
-                control={form.control}
-                name="customer_name"
-                render={({ field }) => (
-                  <FormItem className="flex-1 flex-col">
-                    <FormLabel className="text-secondary-foreground">
-                      Nome do cliente:
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Digite o nome do cliente..."
-                        {...field}
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit, (errors) =>
+          console.error("Form validation errors:", errors)
+        )}
+        className="flex flex-col"
+      >
+        <div className="space-y-4">
+          <div className="flex items-end gap-4">
+            <FormField
+              control={form.control}
+              name="customer_name"
+              render={({ field }) => (
+                <FormItem className="flex-1 flex-col">
+                  <FormLabel className="text-secondary-foreground">
+                    Nome do cliente:
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Digite o nome do cliente..."
+                      {...field}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="proposal_date"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel className="text-secondary-foreground">
+                    Data:
+                  </FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-[240px] pl-3 text-left font-normal leading-8",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, "PPP", { locale: ptBR })
+                          ) : (
+                            <span>Selecione a data</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        locale={ptBR}
+                        lang="pt-BR"
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={(date) => date < new Date("1900-01-01")}
+                        initialFocus
                       />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="proposal_date"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel className="text-secondary-foreground">
-                      Data:
-                    </FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant={"outline"}
-                            className={cn(
-                              "w-[240px] pl-3 text-left font-normal leading-8",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            {field.value ? (
-                              format(field.value, "PPP", { locale: ptBR })
-                            ) : (
-                              <span>Selecione a data</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          locale={ptBR}
-                          lang="pt-BR"
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          disabled={(date) => date < new Date("1900-01-01")}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage className="leading-8" />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="doc_revision"
-                render={({ field }) => (
-                  <FormItem className="flex-1 flex-col max-w-14">
-                    <FormLabel className="text-secondary-foreground">
-                      Rev.:
-                    </FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div>
-              <FormField
-                control={form.control}
-                name="project_type"
-                render={({ field }) => (
-                  <FormItem className="flex-1 flex-col">
-                    <FormLabel className="text-secondary-foreground">
-                      Finalidade do projeto:
-                    </FormLabel>
-                    <FormControl>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Selecione o tipo de projeto..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {ProjectTypes.map((projectType) => (
-                            <SelectItem key={projectType} value={projectType}>
-                              {projectType}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div className="flex gap-4">
-              <FormField
-                control={form.control}
-                name="payment_condition"
-                render={({ field }) => (
-                  <FormItem className="flex-1 flex-col">
-                    <FormLabel className="text-secondary-foreground">
-                      Condição de pagamento:
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Digite a condição de pagamento..."
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="execution_time"
-                render={({ field }) => (
-                  <FormItem className="flex-1 flex-col">
-                    <FormLabel className="text-secondary-foreground">
-                      Prazo de execução:
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Digite o prazo de execução..."
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div className="flex-col w-1/4">
-              <FormLabel className="text-secondary-foreground">
-                Adicionar Pedido (OMIE):
-              </FormLabel>
-              <OrderInput
-                onOrderAdded={addOrder}
-                existingOrders={form.getValues("orders") as Order[]}
-              />
-            </div>
-            <div className="mt-4 max-h-[400px] overflow-y-auto">
-              <OrdersTable
-                orders={orders as Order[]}
-                moveOrder={moveOrder}
-                editOrder={editOrder}
-                removeOrder={removeOrder}
-                form={form}
-              />
-            </div>
-            <div className="w-full flex justify-end">
-              <Button
-                type="submit"
-                size="lg"
-                className="mt-4"
-                disabled={isSubmitting || orders.length === 0}
-                ref={buttonRef}
-              >
-                {isSubmitting ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <FileTextIcon className="w-4 h-4 mr-2 text-white" />
-                )}
-                {isSubmitting
-                  ? "Aguarde..."
-                  : proposalId
-                  ? "Atualizar proposta"
-                  : "Gerar proposta"}
-              </Button>
-            </div>
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage className="leading-8" />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="doc_revision"
+              render={({ field }) => (
+                <FormItem className="flex-1 flex-col max-w-14">
+                  <FormLabel className="text-secondary-foreground">
+                    Rev.:
+                  </FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
-        </form>
-      </Form>
-    </>
+          <div>
+            <FormField
+              control={form.control}
+              name="project_type"
+              render={({ field }) => (
+                <FormItem className="flex-1 flex-col">
+                  <FormLabel className="text-secondary-foreground">
+                    Finalidade do projeto:
+                  </FormLabel>
+                  <FormControl>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Selecione o tipo de projeto..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {ProjectTypes.map((projectType) => (
+                          <SelectItem key={projectType} value={projectType}>
+                            {projectType}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div className="flex gap-4">
+            <FormField
+              control={form.control}
+              name="payment_condition"
+              render={({ field }) => (
+                <FormItem className="flex-1 flex-col">
+                  <FormLabel className="text-secondary-foreground">
+                    Condição de pagamento:
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Digite a condição de pagamento..."
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="execution_time"
+              render={({ field }) => (
+                <FormItem className="flex-1 flex-col">
+                  <FormLabel className="text-secondary-foreground">
+                    Prazo de execução:
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Digite o prazo de execução..."
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div className="flex-col w-1/4">
+            <FormLabel className="text-secondary-foreground">
+              Adicionar Pedido (OMIE):
+            </FormLabel>
+            <OrderInput
+              onOrderAdded={addOrder}
+              existingOrders={form.getValues("orders") as Order[]}
+            />
+          </div>
+          <div className="mt-4 max-h-[400px] overflow-y-auto">
+            <OrdersTable
+              orders={orders as Order[]}
+              moveOrder={moveOrder}
+              editOrder={editOrder}
+              removeOrder={removeOrder}
+              form={form}
+            />
+          </div>
+          <div className="w-full flex justify-end">
+            <Button
+              type="submit"
+              size="lg"
+              className="mt-4"
+              disabled={
+                isSubmitting || orders.length === 0 || !form.formState.isValid
+              }
+              ref={buttonRef}
+            >
+              {isSubmitting ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <FileTextIcon className="w-4 h-4 mr-2 text-white" />
+              )}
+              {isSubmitting
+                ? "Aguarde..."
+                : proposalId
+                ? "Atualizar proposta"
+                : "Gerar proposta"}
+            </Button>
+          </div>
+        </div>
+      </form>
+    </Form>
   );
 }
 export default FormProposal;

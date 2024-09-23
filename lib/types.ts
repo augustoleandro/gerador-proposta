@@ -30,7 +30,7 @@ export interface Order {
   value: number;
   items: OrderItem[];
   service_description: string;
-  category: Category;
+  //category: Category;
   created_at?: string;
   updated_at?: string;
 }

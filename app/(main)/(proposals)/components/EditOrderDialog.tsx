@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,16 +10,9 @@ import {
 } from "@/components/ui/dialog";
 import { FormLabel } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import SelectEditable from "@/components/ui/selectEditable";
 import { OrdersTitles } from "@/lib/options";
-import { badgeVariants, Category, Order } from "@/lib/types";
+import { Order } from "@/lib/types";
 import { EditIcon } from "lucide-react";
 import { useState } from "react";
 
@@ -33,9 +25,9 @@ export function EditOrderDialog({
 }) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(order.value);
-  const [category, setCategory] = useState<Category>(
+  /* const [category, setCategory] = useState<Category>(
     order.category as Category
-  );
+  ); */
   const [description, setDescription] = useState(order.description);
 
   const handleSave = () => {
@@ -43,7 +35,7 @@ export function EditOrderDialog({
       ...order,
       value,
       description,
-      category,
+      //category,
     });
     setOpen(false);
   };
@@ -97,7 +89,7 @@ export function EditOrderDialog({
                 onChange={setDescription}
               />
             </div>
-            <div className="flex items-center gap-4">
+            {/* <div className="flex items-center gap-4">
               <FormLabel htmlFor="category">Categoria</FormLabel>
               <Select
                 onValueChange={(value) => setCategory(value as Category)}
@@ -121,7 +113,7 @@ export function EditOrderDialog({
                   </SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </div> */}
           </div>
           <DialogFooter>
             <Button onClick={handleSave} disabled={!value || !description}>

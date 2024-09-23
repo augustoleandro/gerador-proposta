@@ -28,7 +28,7 @@ export const formProposalSchema = z.object({
       service_description: z
         .string()
         .min(2, { message: "Nome deve ter no mínimo 2 caracteres" }),
-      category: z.string().min(1, { message: "Categoria é obrigatória." }),
+      //category: z.string().min(1, { message: "Categoria é obrigatória." }),
     })
   ),
   payment_condition: z

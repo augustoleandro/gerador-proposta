@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,17 +10,10 @@ import {
 } from "@/components/ui/dialog";
 import { FormLabel } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import SelectEditable from "@/components/ui/selectEditable";
 import { toast } from "@/components/ui/use-toast";
 import { OrdersTitles } from "@/lib/options";
-import { badgeVariants, Category, Order, OrderItem } from "@/lib/types";
+import { Order, OrderItem } from "@/lib/types";
 import { getOrder } from "@/services/omie";
 import { Loader2, PlusIcon } from "lucide-react";
 import { useState } from "react";
@@ -41,7 +33,7 @@ export function NewOrderDialog({
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(0.0);
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState<Category>("AUT");
+  //const [category, setCategory] = useState<Category>("AUT");
   const [items, setItems] = useState<OrderItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -53,7 +45,7 @@ export function NewOrderDialog({
       description,
       items,
       service_description,
-      category: category as Category,
+      //category: category as Category,
     });
     setOpen(false);
     setValue(0.0);
@@ -165,7 +157,7 @@ export function NewOrderDialog({
                 onChange={setDescription}
               />
             </div>
-            <div className="flex items-center gap-4">
+            {/* <div className="flex items-center gap-4">
               <FormLabel htmlFor="category">Categoria</FormLabel>
               <Select
                 onValueChange={(value) => setCategory(value as Category)}
@@ -190,7 +182,7 @@ export function NewOrderDialog({
                   </SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </div> */}
           </div>
           <DialogFooter>
             <Button onClick={handleSave} disabled={!value || !description}>
