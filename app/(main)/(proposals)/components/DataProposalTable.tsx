@@ -1,8 +1,9 @@
 "use client";
-
+import { createClient } from "@/utils/supabase/client";
 import {
   ColumnDef,
   ColumnFiltersState,
+  FilterFn,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
@@ -14,6 +15,8 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Table,
   TableBody,
@@ -38,6 +41,23 @@ export function DataProposalTable<TData, TValue>({
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
+  const [proposalFilter, setProposalFilter] = React.useState("all");
+  const [userId, setUserId] = React.useState<string | null>(null);
+
+  const supabase = createClient();
+
+  React.useEffect(() => {
+    const getUserId = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) {
+        setUserId(user.id);
+      }
+    };
+
+    getUserId();
+  }, [supabase]);
 
   const table = useReactTable({
     data,
@@ -51,17 +71,34 @@ export function DataProposalTable<TData, TValue>({
     state: {
       sorting,
       columnFilters,
+      globalFilter: proposalFilter,
     },
     initialState: {
       pagination: {
         pageSize: 8,
       },
     },
+    filterFns: {
+      myProposals: (row, columnId, filterValue) => {
+        if (filterValue === "all") return true;
+        const rowCreatedBy: String[] = row.getValue("created_by");
+        const isMyProposal = rowCreatedBy[0] === userId;
+        return isMyProposal;
+      },
+    },
+    globalFilterFn: ((row, columnId, filterValue) => {
+      if (filterValue === "all") return true;
+      if (filterValue === "my") {
+        const rowCreatedBy: String[] = row.getValue("created_by");
+        return rowCreatedBy[0] === userId;
+      }
+      return false;
+    }) as FilterFn<TData>,
   });
 
   return (
     <div>
-      <div className="flex items-center py-4">
+      <div className="flex items-center py-4 gap-4">
         <div className="relative w-full max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
           <Input
@@ -78,6 +115,23 @@ export function DataProposalTable<TData, TValue>({
             className="pl-10 w-full"
           />
         </div>
+
+        <RadioGroup
+          defaultValue="all"
+          onValueChange={(value) => {
+            setProposalFilter(value);
+          }}
+          className="flex space-x-4"
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="all" id="all" />
+            <Label htmlFor="all">Todas</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="my" id="my" />
+            <Label htmlFor="my">Minhas Propostas</Label>
+          </div>
+        </RadioGroup>
       </div>
       <div className="rounded-md border">
         <Table className="w-full">

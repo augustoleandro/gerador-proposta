@@ -33,6 +33,7 @@ import { ProjectTypes } from "@/lib/options";
 import { Order } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { formProposalSchema } from "@/schemas/formProsposalSchema";
+import { translateError } from "@/utils/errorTranslations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -125,7 +126,7 @@ function FormProposal({ proposalId }: FormProposalProps) {
         title: `Erro ao ${proposalId ? "atualizar" : "criar"} proposta`,
         description:
           error instanceof Error
-            ? error.message
+            ? translateError(error.message)
             : "Ocorreu um erro desconhecido",
         variant: "destructive",
       });

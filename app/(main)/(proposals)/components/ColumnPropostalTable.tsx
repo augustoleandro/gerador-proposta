@@ -7,6 +7,7 @@ import { format, isValid, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { ArrowUpDown, Download, EditIcon } from "lucide-react";
 import Link from "next/link";
+import { DeleteProposalDialog } from "./DeleteProposalDialog";
 
 export const ColumnProposalTable: ColumnDef<Proposal>[] = [
   {
@@ -84,6 +85,7 @@ export const ColumnProposalTable: ColumnDef<Proposal>[] = [
           <Link href={docLink} target="_blank" className="link-button">
             <Download className="w-5 h-5" />
           </Link>
+          <DeleteProposalDialog proposalId={proposalId} />
         </div>
       );
     },

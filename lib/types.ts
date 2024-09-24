@@ -6,6 +6,7 @@ export type User = {
   created_at?: string;
   updated_at?: string;
   avatar_url?: string;
+  user_role?: string;
 };
 
 export type Proposal = {
