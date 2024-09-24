@@ -55,6 +55,10 @@ export const ColumnProposalTable: ColumnDef<Proposal>[] = [
   {
     accessorKey: "created_by",
     header: "Criado por",
+    cell: ({ row }) => {
+      const createdBy = row.original.created_by;
+      return createdBy[1];
+    },
   },
   {
     accessorKey: "created_at",
@@ -77,6 +81,7 @@ export const ColumnProposalTable: ColumnDef<Proposal>[] = [
     cell: ({ row }) => {
       const proposalId: string = row.original.id || "";
       const docLink: string = row.original.doc_link || "#";
+
       return (
         <div className="w-full flex items-center justify-end space-x-2">
           <Link href={`/propostas/${proposalId}`} className="link-button">

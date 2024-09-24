@@ -12,8 +12,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "@/components/ui/use-toast";
+import { Proposal } from "@/lib/types";
+import { createClient } from "@/utils/supabase/client";
 import { Trash2 } from "lucide-react";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 
 interface DeleteProposalDialogProps {
   proposalId: string;
@@ -24,6 +26,30 @@ export function DeleteProposalDialog({
 }: DeleteProposalDialogProps) {
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [userId, setUserId] = useState<string | null>(null);
+  const [proposal, setProposal] = useState<Proposal | null>(null);
+
+  const supabase = createClient();
+  useEffect(() => {
+    const fetchUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      setUserId(user?.id || null);
+    };
+    fetchUser();
+  }, [supabase]);
+
+  useEffect(() => {
+    const fetchProposal = async () => {
+      const { data: proposal, error } = await supabase
+        .from("proposals")
+        .select("*")
+        .eq("id", proposalId);
+      setProposal(proposal?.[0]);
+    };
+    fetchProposal();
+  }, [proposalId, supabase]);
 
   const handleDeleteProposal = async () => {
     startTransition(async () => {
@@ -51,7 +77,10 @@ export function DeleteProposalDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="h-8 w-8 p-0 text-destructive bg-transparent hover:bg-destructive hover:text-white">
+        <Button
+          className="h-8 w-8 p-0 text-destructive bg-transparent hover:bg-destructive hover:text-white"
+          disabled={!(userId === proposal?.created_by)}
+        >
           <Trash2 className="h-4 w-4" />
         </Button>
       </DialogTrigger>
