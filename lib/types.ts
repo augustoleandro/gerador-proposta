@@ -39,6 +39,7 @@ export interface Order {
 export type OrderItem = {
   name: string;
   quantity: string;
+  value: number;
   created_at?: string;
   updated_at?: string;
 };

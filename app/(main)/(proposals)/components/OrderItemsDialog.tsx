@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { Order } from "@/lib/types";
+import { formatCurrency } from "@/lib/utils";
 import { TableProperties } from "lucide-react";
 import { useState } from "react";
 
@@ -74,7 +75,7 @@ export function OrderItemsDialog({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild></DialogTrigger>
         <DialogContent
-          className="sm:max-w-[720px] max-h-[90vh] flex flex-col"
+          className="sm:max-w-[900px] max-h-[90vh] flex flex-col"
           onInteractOutside={(e) => {
             e.preventDefault();
           }}
@@ -85,7 +86,7 @@ export function OrderItemsDialog({
           </DialogHeader>
           <div className="flex flex-col gap-4 w-full">
             <div className="max-h-[320px] w-full overflow-auto border-secondary border-[2px] rounded-md">
-              <Table className="w-full ">
+              <Table className="w-full">
                 <TableHeader className="sticky top-0 bg-primary z-10">
                   <TableRow>
                     <TableHead className="bg-primary/30 text-white">
@@ -94,6 +95,9 @@ export function OrderItemsDialog({
                     <TableHead className="bg-primary/30 text-white text-right">
                       Quantidade
                     </TableHead>
+                    <TableHead className="bg-primary/30 text-white text-right">
+                      Valor/un.
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -101,6 +105,9 @@ export function OrderItemsDialog({
                     <TableRow key={item.name}>
                       <TableCell>{item.name}</TableCell>
                       <TableCell align="right">{item.quantity}</TableCell>
+                      <TableCell align="right">
+                        {formatCurrency(item.value)}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

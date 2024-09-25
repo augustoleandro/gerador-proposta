@@ -95,10 +95,13 @@ export function NewOrderDialog({
       setValue(
         parseFloat(data.pedido_venda_produto.total_pedido.valor_total_pedido)
       );
-      const items = data.pedido_venda_produto.det.map((item: any) => ({
-        name: item.produto.descricao,
-        quantity: String(item.produto.quantidade),
-      }));
+      const items: OrderItem[] = data.pedido_venda_produto.det.map(
+        (item: any) => ({
+          name: item.produto.descricao,
+          quantity: String(item.produto.quantidade),
+          value: item.produto.valor_unitario,
+        })
+      );
       setItems([...items, ...items]);
       setOpen(true);
     }

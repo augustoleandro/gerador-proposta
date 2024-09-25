@@ -22,6 +22,7 @@ export const formProposalSchema = z.object({
             quantity: z
               .string()
               .min(1, { message: "Quantidade deve ser maior que zero." }),
+            value: z.number(),
           })
         )
         .min(1, { message: "Pelo menos um item é necessário." }),

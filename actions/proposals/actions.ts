@@ -132,6 +132,7 @@ export async function createProposal(data: FormData) {
             order_id: savedOrder.id,
             name: item.name,
             quantity: item.quantity,
+            value: item.value,
           },
         ]);
 
@@ -345,6 +346,7 @@ export async function editProposal(id: string, data: FormData) {
           order_id: updatedOrder.id,
           name: item.name,
           quantity: item.quantity,
+          value: item.value,
         });
 
         if (itemError) {
@@ -447,7 +449,8 @@ export async function deleteProposal(id: string) {
       if (fileName) {
         const { data: response, error: deleteFileError } =
           await supabase.storage.from("files").remove([`pdfs/${fileName}`]);
-
+        console.log("fileName: ", fileName);
+        console.log(response);
         if (deleteFileError) {
           console.error(
             "Erro ao deletar arquivo PDF:",
