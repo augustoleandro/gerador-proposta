@@ -353,8 +353,8 @@ function FormProposal({ proposalId }: FormProposalProps) {
           <div className="w-full flex justify-end">
             <Button
               type="submit"
-              size="lg"
-              className="mt-4"
+              variant="default"
+              className="mt-4 w-36"
               disabled={
                 isSubmitting || orders.length === 0 || !form.formState.isValid
               }
@@ -365,11 +365,7 @@ function FormProposal({ proposalId }: FormProposalProps) {
               ) : (
                 <FileTextIcon className="w-4 h-4 mr-2 text-white" />
               )}
-              {isSubmitting
-                ? "Aguarde..."
-                : proposalId
-                ? "Atualizar proposta"
-                : "Gerar proposta"}
+              {isSubmitting ? "Aguarde..." : proposalId ? "Atualizar" : "Gerar"}
             </Button>
           </div>
         </div>

@@ -443,11 +443,10 @@ export async function deleteProposal(id: string) {
 
     // Deletar o PDF do storage
     if (proposal.doc_link) {
-      const fileName = proposal.doc_link.split("/").pop();
+      const fileName = proposal.doc_link.split("/").pop()?.trim();
       if (fileName) {
-        const { error: deleteFileError } = await supabase.storage
-          .from("files")
-          .remove([fileName]);
+        const { data: response, error: deleteFileError } =
+          await supabase.storage.from("files").remove([`pdfs/${fileName}`]);
 
         if (deleteFileError) {
           console.error(
@@ -522,37 +521,52 @@ export async function getProposals(): Promise<Proposal[]> {
 export async function getProposalById(id: string): Promise<Proposal> {
   const supabase = createClient();
 
-  const { data: proposalData, error: proposalError } = await supabase
-    .from("proposals")
-    .select("*")
-    .eq("id", id)
-    .single();
+  try {
+    const { data: proposalData, error: proposalError } = await supabase
+      .from("proposals")
+      .select("*")
+      .eq("id", id)
+      .single();
 
-  if (!proposalData) {
-    throw new Error("Proposal not found");
-  }
+    if (proposalError) {
+      console.error(`Erro ao buscar proposta: ${proposalError.message}`);
+      throw new Error(`Erro ao buscar proposta: ${proposalError.message}`);
+    }
 
-  const { data: ordersData, error: ordersError } = await supabase
-    .from("orders")
-    .select(
-      `
+    if (!proposalData) {
+      console.error(`Proposta não encontrada para o ID: ${id}`);
+      throw new Error("Proposta não encontrada");
+    }
+
+    console.log(`Proposta encontrada, buscando pedidos...`);
+
+    const { data: ordersData, error: ordersError } = await supabase
+      .from("orders")
+      .select(
+        `
       *,
-      items:order_items(*),
+      items:order_items(*)
     `
-    )
-    .eq("proposal_id", id);
+      )
+      .eq("proposal_id", id);
 
-  if (ordersError) {
-    throw new Error("Error fetching orders");
+    if (ordersError) {
+      throw new Error("Error fetching orders");
+    }
+
+    console.log(`Pedidos encontrados: ${ordersData?.length || 0}`);
+
+    /* const processedOrders = ordersData?.map((order) => ({
+      ...order,
+      category: order.category?.name || null,
+    })); */
+
+    return {
+      ...proposalData,
+      orders: ordersData || [],
+    };
+  } catch (error) {
+    console.error("Error fetching proposal by ID:", error);
+    throw error;
   }
-
-  /* const processedOrders = ordersData?.map((order) => ({
-    ...order,
-    category: order.category?.name || null,
-  })); */
-
-  return {
-    ...proposalData,
-    orders: ordersData || [],
-  };
 }

@@ -33,19 +33,19 @@ const serviceDescriptionTemplates = [
   {
     label: "Automação Residencial",
     description:
-      "Serviço Automatize\nInstalação, configuração e treinamento s acima;\nAcompanhamento de obra e supervisão;\n",
+      "Instalação, configuração e treinamento da solução acima, compreendendo:\nIluminação: até XX circuitos luminotécnicos ON/OFF;\nIluminação: até XX circuitos luminotécnicos dimmerizáveis;\nAr-Condicionado: até XX unidades;\nPersianas e cortinas: até XX unidades;\n",
   },
   {
     label: "Áudio e Vídeo",
-    description: "Fornecimento e instalação de equipamentos de áudio e vídeo.",
+    description: "Áudio e Vídeo",
   },
   {
     label: "Segurança",
-    description: "Implementação de sistema de segurança integrado.",
+    description: "Segurança",
   },
   {
     label: "Rede e Wi-Fi",
-    description: "Configuração de rede e Wi-Fi de alta performance.",
+    description: "Rede e Wi-Fi",
   },
 ];
 
