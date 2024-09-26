@@ -25,6 +25,7 @@ export async function createProposal(data: FormData) {
       project_type: data.get("project_type"),
       doc_revision: data.get("doc_revision"),
       execution_time: data.get("execution_time"),
+      tag: data.get("tag"),
       orders: JSON.parse(data.get("orders") as string),
     });
 
@@ -58,8 +59,8 @@ export async function createProposal(data: FormData) {
     const fileName = `pdfs/Proposta-Automatize-${proposalData.customer_name
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
-      .replace(/ç/g, "c")}-${formattedDate}-REV${
-      proposalData.doc_revision
+      .replace(/ç/g, "c")}-${formattedDate}-REV${proposalData.doc_revision}${
+      proposalData.tag ? `-${proposalData.tag}` : ""
     }.pdf`;
 
     const { data: file, error: uploadError } = await supabase.storage
@@ -95,6 +96,7 @@ export async function createProposal(data: FormData) {
           execution_time: proposalData.execution_time,
           created_by: user.data.user?.id || null,
           doc_link: pdfUrl,
+          tag: proposalData.tag,
         },
       ])
       .select();
@@ -204,6 +206,7 @@ export async function editProposal(id: string, data: FormData) {
       project_type: data.get("project_type"),
       doc_revision: data.get("doc_revision"),
       execution_time: data.get("execution_time"),
+      tag: data.get("tag"),
       orders: JSON.parse(data.get("orders") as string),
     });
 
@@ -232,8 +235,8 @@ export async function editProposal(id: string, data: FormData) {
     const fileName = `pdfs/Proposta-Automatize-${proposalData.customer_name
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
-      .replace(/ç/g, "c")}-${formattedDate}-REV${
-      proposalData.doc_revision
+      .replace(/ç/g, "c")}-${formattedDate}-REV${proposalData.doc_revision}${
+      proposalData.tag ? `-${proposalData.tag}` : ""
     }.pdf`;
 
     const { data: file, error: uploadError } = await supabase.storage
@@ -268,6 +271,7 @@ export async function editProposal(id: string, data: FormData) {
         doc_revision: proposalData.doc_revision,
         execution_time: proposalData.execution_time,
         doc_link: pdfUrl,
+        tag: proposalData.tag,
       })
       .eq("id", id)
       .select()

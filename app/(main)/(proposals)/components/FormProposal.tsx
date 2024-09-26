@@ -214,6 +214,20 @@ function FormProposal({ proposalId }: FormProposalProps) {
             />
             <FormField
               control={form.control}
+              name="tag"
+              render={({ field }) => (
+                <FormItem className="flex-1 flex-col">
+                  <FormLabel className="text-secondary-foreground">
+                    Tag (opcional):
+                  </FormLabel>
+                  <FormControl>
+                    <Input placeholder="" {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name="proposal_date"
               render={({ field }) => (
                 <FormItem className="flex flex-col">

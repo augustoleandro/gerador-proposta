@@ -1,5 +1,6 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Proposal } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
@@ -31,6 +32,14 @@ export const ColumnProposalTable: ColumnDef<Proposal>[] = [
         {cell.getValue() as string}
       </div>
     ),
+  },
+  {
+    accessorKey: "tag",
+    header: "Tag",
+    cell: ({ row }) => {
+      const tag = row.original.tag;
+      return tag ? <Badge variant="default">{tag}</Badge> : "-";
+    },
   },
   /* {
     accessorKey: "categories",

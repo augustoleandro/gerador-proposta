@@ -45,4 +45,8 @@ export const formProposalSchema = z.object({
     .number()
     .min(0.01, { message: "Valor deve ser maior que zero." }),
   doc_revision: z.string().min(2, { message: "Revisão é obrigatória." }),
+  tag: z
+    .string()
+    .max(20, { message: "Tag deve ter no máximo 20 caracteres." })
+    .optional(),
 });

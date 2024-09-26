@@ -23,6 +23,7 @@ export type Proposal = {
   doc_link?: string;
   created_by: string;
   orders: Order[];
+  tag?: string;
 };
 
 export interface Order {
