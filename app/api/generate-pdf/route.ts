@@ -5,13 +5,13 @@ import { generatePDF, loadCSS, renderTemplate } from "@/lib/pdfUtils";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
-  console.log("Recebendo requisição para gerar PDF");
+  //console.log("Recebendo requisição para gerar PDF");
   try {
-    const proposalData = await request.json();
-    console.log("Dados recebidos:", JSON.stringify(proposalData, null, 2));
+    const templateData = await request.json();
+    //console.log("Dados recebidos:", JSON.stringify(templateData, null, 2));
 
     const css = await loadCSS();
-    let html = await renderTemplate("proposal", proposalData);
+    let html = await renderTemplate("proposal", templateData);
 
     // Inserir o CSS diretamente no HTML
     html = html.replace("</head>", `<style>${css}</style></head>`);

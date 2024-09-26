@@ -9,7 +9,7 @@ export default async function HomePage() {
   const data = await getProposals();
 
   return (
-    <div className="flex flex-col space-y-8 py-10 px-16">
+    <div className="flex flex-col space-y-2 py-8 px-8">
       <div className="flex justify-between items-center">
         <h2 className="h2 text-primary">Propostas</h2>
         <Link href="/novaproposta">

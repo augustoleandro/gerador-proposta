@@ -9,6 +9,10 @@ const nextConfig = {
       },
     ];
   },
+  serverRuntimeConfig: {
+    // Aumenta o timeout para 30 segundos (valor em milissegundos)
+    apiResponseTimeout: 30000,
+  },
 };
 
 export default nextConfig;

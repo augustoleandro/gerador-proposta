@@ -11,6 +11,7 @@ import { revalidatePath } from "next/cache";
 export async function createProposal(data: FormData) {
   const supabase = createClient();
   const user = await supabase.auth.getUser();
+  const showItemValues = data.get("showItemValues");
 
   let pdfUrl: string | null = null;
 
@@ -28,6 +29,11 @@ export async function createProposal(data: FormData) {
     });
 
     // Generate PDF first
+    const templateData = {
+      ...proposalData,
+      showItemValues,
+    };
+
     const pdf = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/generate-pdf`,
       {
@@ -35,7 +41,7 @@ export async function createProposal(data: FormData) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(proposalData),
+        body: JSON.stringify(templateData),
       }
     );
 
@@ -146,10 +152,10 @@ export async function createProposal(data: FormData) {
       }
     }
 
-    console.log(
+    /* console.log(
       "Nova Proposta adicionada: ",
       JSON.stringify(proposalData, null, 2)
-    );
+    ); */
 
     revalidatePath("/");
 
@@ -359,7 +365,7 @@ export async function editProposal(id: string, data: FormData) {
       }
     }
 
-    console.log("Proposta atualizada: ", JSON.stringify(proposalData, null, 2));
+    //console.log("Proposta atualizada: ", JSON.stringify(proposalData, null, 2));
 
     revalidatePath("/");
 
@@ -445,12 +451,10 @@ export async function deleteProposal(id: string) {
 
     // Deletar o PDF do storage
     if (proposal.doc_link) {
-      const fileName = proposal.doc_link.split("/").pop()?.trim();
+      const fileName = proposal.doc_link.split("/").pop()?.replace(/%20/g, " ");
       if (fileName) {
         const { data: response, error: deleteFileError } =
           await supabase.storage.from("files").remove([`pdfs/${fileName}`]);
-        console.log("fileName: ", fileName);
-        console.log(response);
         if (deleteFileError) {
           console.error(
             "Erro ao deletar arquivo PDF:",

@@ -4,7 +4,7 @@ import Logo from "./Logo";
 
 async function Navbar() {
   return (
-    <nav className="w-full h-24 flex items-center justify-between bg-primary px-16">
+    <nav className="w-full h-16 flex items-center justify-between bg-primary px-16">
       <Link href="/">
         <Logo />
       </Link>

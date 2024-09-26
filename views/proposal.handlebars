@@ -771,15 +771,22 @@
                     <th style="text-align: left">Item</th>
                     <th style="text-align: left">Descrição</th>
                     <th style="text-align: right">Quantidade</th>
+                    
+                    {{#ifEquals ../../showItemValues "true"}}
+                      <th style="text-align: right">Valor/un</th>
+                    {{/ifEquals}}
                   </tr>
                 </thead>
               {{/if}}
               <tbody>
                 {{#each this}}
                   <tr>
-                    <td>{{calculateItemNumber @../index @index}}</td>
+                    <td style="font-size: 12px">{{calculateItemNumber @../index @index}}</td>
                     <td style="font-size: 12px">{{name}}</td>
-                    <td style="text-align: right">{{quantity}}</td>
+                    <td style="font-size: 12px; text-align: right">{{quantity}}</td>
+                    {{#ifEquals ../../../showItemValues "true"}}
+                      <td style="font-size: 12px; text-align: right">{{formatCurrency value}}</td>
+                    {{/ifEquals}}
                   </tr>
                 {{/each}}
               </tbody>
@@ -916,7 +923,7 @@
             flex-direction: column;
             align-items: start;
             gap: 16px;
-            margin-top: 48px;
+            margin-top: 16px;
             width: 100%;
           "
         >

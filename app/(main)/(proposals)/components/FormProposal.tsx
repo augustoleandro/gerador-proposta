@@ -28,6 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "@/components/ui/use-toast";
 import { ProjectTypes } from "@/lib/options";
 import { Order } from "@/lib/types";
@@ -35,11 +36,12 @@ import { cn } from "@/lib/utils";
 import { formProposalSchema } from "@/schemas/formProsposalSchema";
 import { translateError } from "@/utils/errorTranslations";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Label } from "@radix-ui/react-label";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { CalendarIcon, FileTextIcon, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { OrderInput } from "./OrderInput";
@@ -51,8 +53,9 @@ interface FormProposalProps {
 
 function FormProposal({ proposalId }: FormProposalProps) {
   const router = useRouter();
+
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const buttonRef = useRef<HTMLButtonElement>(null);
+  const [showItemValues, setShowItemValues] = useState(false);
 
   const form = useForm<z.infer<typeof formProposalSchema>>({
     resolver: zodResolver(formProposalSchema),
@@ -97,6 +100,8 @@ function FormProposal({ proposalId }: FormProposalProps) {
           formData.append(key, value.toString());
         }
       });
+
+      formData.append("showItemValues", showItemValues.toString());
 
       let result;
       if (proposalId) {
@@ -261,7 +266,6 @@ function FormProposal({ proposalId }: FormProposalProps) {
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -350,15 +354,32 @@ function FormProposal({ proposalId }: FormProposalProps) {
               form={form}
             />
           </div>
-          <div className="w-full flex justify-end">
+          <div className="w-full flex justify-end items-center gap-8 mt-4">
+            <div className="flex items-center gap-2">
+              <Switch
+                id="show-values"
+                checked={showItemValues}
+                onCheckedChange={(checked) => {
+                  setShowItemValues(checked);
+                }}
+              />
+              <Label
+                htmlFor="show-values"
+                className="text-sm text-secondary-foreground"
+              >
+                Mostrar valores
+              </Label>
+            </div>
+
             <Button
               type="submit"
               variant="default"
-              className="mt-4 w-36"
+              className="w-36"
               disabled={
-                isSubmitting || orders.length === 0 || !form.formState.isValid
+                isSubmitting ||
+                orders.length === 0 ||
+                Object.keys(form.formState.errors).length > 0
               }
-              ref={buttonRef}
             >
               {isSubmitting ? (
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
