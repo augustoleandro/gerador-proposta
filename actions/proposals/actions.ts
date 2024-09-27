@@ -193,6 +193,7 @@ export async function editProposal(id: string, data: FormData) {
   console.log("Starting edit proposal");
   const supabase = createClient();
   const user = await supabase.auth.getUser();
+  const showItemValues = data.get("showItemValues");
 
   let pdfUrl: string | null = null;
 
@@ -210,6 +211,12 @@ export async function editProposal(id: string, data: FormData) {
       orders: JSON.parse(data.get("orders") as string),
     });
 
+    // Generate PDF first
+    const templateData = {
+      ...proposalData,
+      showItemValues,
+    };
+
     // Generate new PDF first
     const pdf = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/generate-pdf`,
@@ -218,7 +225,7 @@ export async function editProposal(id: string, data: FormData) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ ...proposalData, id }),
+        body: JSON.stringify({ ...templateData, id }),
       }
     );
 
