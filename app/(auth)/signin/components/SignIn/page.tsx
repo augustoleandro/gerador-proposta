@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { LoaderCircle, LogIn } from "lucide-react";
+import Link from "next/link";
 import { useEffect } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 
@@ -84,6 +85,14 @@ function SignIn() {
         </div>
         <SubmitButton />
       </form>
+      <div className="flex justify-end mt-4">
+        <Link
+          href="/forgot-password"
+          className="text-primary text-sm hover:font-semibold transition-all"
+        >
+          Esqueceu sua senha ou quer criar uma nova?
+        </Link>
+      </div>
     </div>
   );
 }
