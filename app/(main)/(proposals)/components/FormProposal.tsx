@@ -37,7 +37,7 @@ import { formProposalSchema } from "@/schemas/formProsposalSchema";
 import { translateError } from "@/utils/errorTranslations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Label } from "@radix-ui/react-label";
-import { format } from "date-fns";
+import { addDays, format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { CalendarIcon, FileTextIcon, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -66,6 +66,7 @@ function FormProposal({ proposalId }: FormProposalProps) {
       execution_time: "60 dias após liberação pela obra",
       project_type: "Soluções de Tecnologia Residencial",
       doc_revision: "00",
+      tag: null,
     },
   });
 
@@ -76,7 +77,7 @@ function FormProposal({ proposalId }: FormProposalProps) {
           const proposalData = await getProposalById(proposalId);
           form.reset({
             ...proposalData,
-            proposal_date: new Date(proposalData.proposal_date),
+            proposal_date: addDays(new Date(proposalData.proposal_date), 1),
           });
         } catch (error) {
           console.error("Error loading proposal data:", error);
@@ -96,8 +97,10 @@ function FormProposal({ proposalId }: FormProposalProps) {
           formData.append(key, JSON.stringify(value));
         } else if (value instanceof Date) {
           formData.append(key, value.toISOString());
-        } else {
+        } else if (value !== undefined && value !== null) {
           formData.append(key, value.toString());
+        } else if (key === "tag" && value !== undefined && value !== null) {
+          formData.append(key, String(value));
         }
       });
 
@@ -221,7 +224,11 @@ function FormProposal({ proposalId }: FormProposalProps) {
                     Tag (opcional):
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="" {...field} />
+                    <Input
+                      placeholder=""
+                      {...field}
+                      value={field.value || ""}
+                    />
                   </FormControl>
                 </FormItem>
               )}

@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -45,7 +47,6 @@ export function NewOrderDialog({
       description,
       items,
       service_description,
-      //category: category as Category,
     });
     setOpen(false);
     setValue(0.0);
@@ -95,6 +96,7 @@ export function NewOrderDialog({
       setValue(
         parseFloat(data.pedido_venda_produto.total_pedido.valor_total_pedido)
       );
+
       const items: OrderItem[] = data.pedido_venda_produto.det.map(
         (item: any) => ({
           name: item.produto.descricao,
@@ -102,7 +104,7 @@ export function NewOrderDialog({
           value: item.produto.valor_unitario,
         })
       );
-      setItems([...items, ...items]);
+      setItems(items);
       setOpen(true);
     }
     setIsLoading(false);
@@ -160,32 +162,6 @@ export function NewOrderDialog({
                 onChange={setDescription}
               />
             </div>
-            {/* <div className="flex items-center gap-4">
-              <FormLabel htmlFor="category">Categoria</FormLabel>
-              <Select
-                onValueChange={(value) => setCategory(value as Category)}
-                value={category}
-                defaultValue={Object.keys(badgeVariants)[0] as Category}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione uma categoria" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="AUT">
-                    <Badge variant={badgeVariants["AUT"]}>AUT</Badge>
-                  </SelectItem>
-                  <SelectItem value="AV">
-                    <Badge variant={badgeVariants["AV"]}>AV</Badge>
-                  </SelectItem>
-                  <SelectItem value="RD">
-                    <Badge variant={badgeVariants["RD"]}>RD</Badge>
-                  </SelectItem>
-                  <SelectItem value="SEC">
-                    <Badge variant={badgeVariants["SEC"]}>SEC</Badge>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div> */}
           </div>
           <DialogFooter>
             <Button onClick={handleSave} disabled={!value || !description}>

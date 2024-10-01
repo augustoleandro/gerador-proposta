@@ -8,6 +8,7 @@ function Logo() {
         alt="Logo"
         width={40}
         height={40}
+        suppressHydrationWarning
       />
       <span className="text-white text-sm uppercase font-semibold">
         Automatize

@@ -294,8 +294,7 @@ export async function editProposal(id: string, data: FormData) {
       throw new Error("Nenhuma proposta foi atualizada");
     }
 
-    // Update existing orders and items
-    // Primeiro, busque todas as orders existentes para esta proposal
+    // Fetch all existing orders for this proposal
     const { data: existingOrders, error: fetchError } = await supabase
       .from("orders")
       .select("id, order_number")
@@ -303,80 +302,124 @@ export async function editProposal(id: string, data: FormData) {
 
     if (fetchError) {
       throw new Error(
-        `Erro ao buscar pedidos existentes: ${translateError(
+        `Erro ao buscar ordens existentes: ${translateError(
           fetchError.message
         )}`
       );
     }
 
-    // Crie um conjunto de order_numbers da nova lista de orders
+    // Create a set of order numbers from the incoming data
     const updatedOrderNumbers = new Set(
-      proposalData.orders.map((o) => o.order_number)
+      proposalData.orders.map((order) => order.order_number)
     );
 
-    // Identifique e delete as orders que não estão mais na lista atualizada
-    for (const existingOrder of existingOrders || []) {
-      if (!updatedOrderNumbers.has(existingOrder.order_number)) {
-        const { error: deleteError } = await supabase
-          .from("orders")
-          .delete()
-          .eq("id", existingOrder.id);
+    // Find orders to delete (those in existingOrders but not in updatedOrderNumbers)
+    const ordersToDelete = existingOrders.filter(
+      (order) => !updatedOrderNumbers.has(order.order_number)
+    );
 
-        if (deleteError) {
-          throw new Error(
-            `Erro ao deletar pedido: ${translateError(deleteError.message)}`
-          );
-        }
+    // Delete orders that are no longer present
+    for (const order of ordersToDelete) {
+      const { error: deleteError } = await supabase
+        .from("orders")
+        .delete()
+        .eq("id", order.id);
+
+      if (deleteError) {
+        throw new Error(
+          `Erro ao deletar ordem: ${translateError(deleteError.message)}`
+        );
       }
     }
 
-    // Agora, atualize ou insira as orders da nova lista
+    // Update or insert orders
     for (const order of proposalData.orders) {
-      const { data: updatedOrder, error: orderError } = await supabase
+      // Check if the order already exists
+      const { data: existingOrder, error: checkError } = await supabase
         .from("orders")
-        .upsert(
-          {
-            proposal_id: id,
-            order_number: order.order_number,
-            description: order.description,
-            value: order.value,
-            service_description: order.service_description,
-          },
-          { onConflict: "proposal_id,order_number" }
-        )
-        .select()
+        .select("id")
+        .eq("proposal_id", id)
+        .eq("order_number", order.order_number)
         .single();
 
-      if (orderError) {
+      if (checkError && checkError.code !== "PGRST116") {
+        // PGRST116 is the code for "no rows returned"
         throw new Error(
-          `Erro ao atualizar pedido: ${translateError(orderError.message)}`
+          `Erro ao verificar ordem existente: ${translateError(
+            checkError.message
+          )}`
         );
       }
 
-      if (!updatedOrder) {
-        throw new Error("Nenhum pedido foi atualizado ou criado");
-      }
+      let updatedOrder;
 
-      // Atualizar ou inserir os itens da ordem
-      for (const item of order.items) {
-        const { error: itemError } = await supabase.from("order_items").upsert({
-          order_id: updatedOrder.id,
-          name: item.name,
-          quantity: item.quantity,
-          value: item.value,
-        });
+      if (!existingOrder) {
+        // If the order doesn't exist, insert a new one
+        const { data: newOrder, error: orderError } = await supabase
+          .from("orders")
+          .insert([
+            {
+              proposal_id: id,
+              order_number: order.order_number,
+              description: order.description,
+              value: order.value,
+              service_description: order.service_description,
+            },
+          ])
+          .select()
+          .single();
 
-        if (itemError) {
+        if (orderError) {
           throw new Error(
-            `Erro ao atualizar/inserir item do pedido: ${translateError(
-              itemError.message
+            `Erro ao inserir nova ordem: ${translateError(orderError.message)}`
+          );
+        }
+
+        updatedOrder = newOrder;
+
+        // Insert items only for new orders
+        for (const item of order.items) {
+          const { error: itemError } = await supabase
+            .from("order_items")
+            .insert({
+              order_id: updatedOrder.id,
+              name: item.name,
+              quantity: item.quantity,
+              value: item.value,
+            });
+
+          if (itemError) {
+            throw new Error(
+              `Erro ao inserir item do pedido: ${translateError(
+                itemError.message
+              )}`
+            );
+          }
+        }
+      } else {
+        // If the order already exists, just update the order data, not the items
+        const { data: updatedOrderData, error: updateError } = await supabase
+          .from("orders")
+          .update({
+            description: order.description,
+            value: order.value,
+            service_description: order.service_description,
+          })
+          .eq("id", existingOrder.id)
+          .select()
+          .single();
+
+        if (updateError) {
+          throw new Error(
+            `Erro ao atualizar ordem existente: ${translateError(
+              updateError.message
             )}`
           );
         }
+
+        updatedOrder = updatedOrderData;
       }
     }
-
-    //console.log("Proposta atualizada: ", JSON.stringify(proposalData, null, 2));
 
     revalidatePath("/");
 
@@ -387,7 +430,7 @@ export async function editProposal(id: string, data: FormData) {
   } catch (error) {
     console.error("Erro ao atualizar proposta:", error);
 
-    // Se o PDF foi criado mas houve um erro depois, vamos deletá-lo
+    // If the PDF was created but there was an error afterwards, let's delete it
     if (pdfUrl) {
       const fileName = pdfUrl.split("/").pop();
       if (fileName) {
@@ -404,7 +447,7 @@ export async function editProposal(id: string, data: FormData) {
       }
     }
 
-    throw error; // Re-throw o erro para que possa ser tratado pelo chamador
+    throw error; // Re-throw the error so it can be handled by the caller
   }
 }
 
@@ -463,6 +506,7 @@ export async function deleteProposal(id: string) {
     // Deletar o PDF do storage
     if (proposal.doc_link) {
       const fileName = proposal.doc_link.split("/").pop()?.replace(/%20/g, " ");
+      console.log("fileName: ", fileName);
       if (fileName) {
         const { data: response, error: deleteFileError } =
           await supabase.storage.from("files").remove([`pdfs/${fileName}`]);

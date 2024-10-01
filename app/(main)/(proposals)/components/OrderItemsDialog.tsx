@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -34,7 +36,7 @@ const serviceDescriptionTemplates = [
   {
     label: "Automação Residencial",
     description:
-      "Instalação, configuração e treinamento da solução acima, compreendendo:\nIluminação: até XX circuitos luminotécnicos ON/OFF;\nIluminação: até XX circuitos luminotécnicos dimmerizáveis;\nAr-Condicionado: até XX unidades;\nPersianas e cortinas: até XX unidades;\n",
+      "Iluminação: até XX circuitos luminotécnicos ON/OFF;\nIluminação: até XX circuitos luminotécnicos dimmerizáveis;\nAr-Condicionado: até XX unidades;\nPersianas e cortinas: até XX unidades;\n",
   },
   {
     label: "Áudio e Vídeo",
@@ -63,7 +65,10 @@ export function OrderItemsDialog({
   const [open, setOpen] = useState(false);
 
   const handleSave = () => {
-    onSave({ ...order, service_description });
+    onSave({
+      ...order,
+      service_description: service_description.trimStart(),
+    });
     setOpen(false);
   };
 
