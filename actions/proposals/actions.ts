@@ -1,7 +1,7 @@
 "use server";
 
 import { Proposal } from "@/lib/types";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, normalizeString } from "@/lib/utils";
 import { formProposalSchema } from "@/schemas/formProsposalSchema";
 import { translateError } from "@/utils/errorTranslations";
 import { createClient } from "@/utils/supabase/server";
@@ -56,11 +56,10 @@ export async function createProposal(data: FormData) {
 
     // Save PDF to Supabase storage
     const formattedDate = format(proposalData.proposal_date, "ddMMyyyy");
-    const fileName = `pdfs/Proposta-Automatize-${proposalData.customer_name
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/ç/g, "c")}-${formattedDate}-REV${proposalData.doc_revision}${
-      proposalData.tag ? `-${proposalData.tag}` : ""
+    const fileName = `pdfs/Proposta-Automatize-${normalizeString(
+      proposalData.customer_name
+    )}-${formattedDate}-REV${proposalData.doc_revision}${
+      proposalData.tag ? `-${normalizeString(proposalData.tag)}` : ""
     }.pdf`;
 
     const { data: file, error: uploadError } = await supabase.storage
@@ -239,11 +238,10 @@ export async function editProposal(id: string, data: FormData) {
 
     // Save new PDF to Supabase storage
     const formattedDate = format(proposalData.proposal_date, "ddMMyyyy");
-    const fileName = `pdfs/Proposta-Automatize-${proposalData.customer_name
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/ç/g, "c")}-${formattedDate}-REV${proposalData.doc_revision}${
-      proposalData.tag ? `-${proposalData.tag}` : ""
+    const fileName = `pdfs/Proposta-Automatize-${normalizeString(
+      proposalData.customer_name
+    )}-${formattedDate}-REV${proposalData.doc_revision}${
+      proposalData.tag ? `-${normalizeString(proposalData.tag)}` : ""
     }.pdf`;
 
     const { data: file, error: uploadError } = await supabase.storage
@@ -506,7 +504,7 @@ export async function deleteProposal(id: string) {
     // Deletar o PDF do storage
     if (proposal.doc_link) {
       const fileName = proposal.doc_link.split("/").pop()?.replace(/%20/g, " ");
-      console.log("fileName: ", fileName);
+      //console.log("fileName: ", fileName);
       if (fileName) {
         const { data: response, error: deleteFileError } =
           await supabase.storage.from("files").remove([`pdfs/${fileName}`]);

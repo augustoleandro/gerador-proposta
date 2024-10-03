@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { toast } from "@/components/ui/use-toast";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -28,11 +29,17 @@ export default function ResetPassword() {
       if (error) {
         setError(error.message);
       } else {
-        setMessage("Senha atualizada com sucesso. Redirecionando...");
+        toast({
+          title: "Senha atualizada com sucesso. Redirecionando...",
+          variant: "success",
+        });
         setTimeout(() => router.push("/"), 2000);
       }
     } catch (error) {
-      setError("Ocorreu um erro ao redefinir a senha.");
+      toast({
+        title: "Ocorreu um erro ao redefinir a senha.",
+        variant: "destructive",
+      });
     }
   };
 
