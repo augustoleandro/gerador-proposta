@@ -20,7 +20,9 @@ export default function ForgotPassword() {
     setIsLoading(true); // Inicia o carregamento
 
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email);
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: "http://proposta.automatize.com.br/new-password",
+      });
 
       if (error) {
         throw error;
