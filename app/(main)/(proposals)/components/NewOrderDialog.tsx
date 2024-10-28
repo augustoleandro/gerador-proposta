@@ -25,12 +25,14 @@ export function NewOrderDialog({
   onSave,
   orders,
   resetOrderNumber,
+  city,
 }: {
   order_number: string;
   totalValue: number;
   orders: Order[];
   onSave: (order: Order) => void;
   resetOrderNumber: () => void;
+  city: string;
 }) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(0.0);
@@ -70,7 +72,7 @@ export function NewOrderDialog({
     }
 
     setIsLoading(true);
-    const data = await getOrder(order_number);
+    const data = await getOrder(order_number, city);
 
     if (!data.pedido_venda_produto) {
       toast({

@@ -49,9 +49,10 @@ import OrdersTable from "./OrdersTable";
 
 interface FormProposalProps {
   proposalId?: string;
+  city?: string;
 }
 
-function FormProposal({ proposalId }: FormProposalProps) {
+function FormProposal({ proposalId, city }: FormProposalProps) {
   const router = useRouter();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -87,6 +88,8 @@ function FormProposal({ proposalId }: FormProposalProps) {
     fetchProposalData();
   }, [proposalId, form]);
 
+  let cityValue = city || form.getValues("city");
+
   async function onSubmit(data: z.infer<typeof formProposalSchema>) {
     setIsSubmitting(true);
 
@@ -105,6 +108,7 @@ function FormProposal({ proposalId }: FormProposalProps) {
       });
 
       formData.append("showItemValues", showItemValues.toString());
+      formData.append("city", city || "");
 
       let result;
       if (proposalId) {
@@ -362,6 +366,7 @@ function FormProposal({ proposalId }: FormProposalProps) {
               Adicionar Pedido (OMIE):
             </FormLabel>
             <OrderInput
+              city={cityValue || ""}
               onOrderAdded={addOrder}
               existingOrders={form.getValues("orders") as Order[]}
             />

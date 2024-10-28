@@ -24,7 +24,7 @@ export type Proposal = {
   created_by: string;
   orders: Order[];
   tag?: string;
-  city?: string;
+  city: string;
 };
 
 export interface Order {

@@ -4,9 +4,9 @@ export async function getOrders() {
   return data;
 }
 
-export async function getOrder(order_number: string) {
+export async function getOrder(order_number: string, city: string) {
   try {
-    const response = await fetch("/api/omie/pedido", {
+    const response = await fetch(`/api/omie/pedido?city=${city}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

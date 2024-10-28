@@ -83,6 +83,14 @@ export const ColumnProposalTable: ColumnDef<Proposal>[] = [
     },
   },
   {
+    accessorKey: "city",
+    header: "Automatize",
+    cell: ({ row }) => {
+      const city = row.original.city;
+      return city === "gyn" ? "Goiânia" : "Brasília";
+    },
+  },
+  {
     id: "actions",
     header: ({ column }) => {
       return <div className="w-16"></div>;

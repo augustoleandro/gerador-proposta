@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
+  const city = request.nextUrl.searchParams.get("city");
   const { order_number } = await request.json();
   try {
     const response = await fetch(
@@ -12,8 +13,14 @@ export async function POST(request: NextRequest) {
         },
         body: JSON.stringify({
           call: "ConsultarPedido",
-          app_key: process.env.OMIE_APP_KEY,
-          app_secret: process.env.OMIE_APP_SECRET,
+          app_key:
+            city === "gyn"
+              ? process.env.OMIE_APP_KEY
+              : process.env.BSB_OMIE_APP_KEY,
+          app_secret:
+            city === "gyn"
+              ? process.env.OMIE_APP_SECRET
+              : process.env.BSB_OMIE_APP_SECRET,
           param: [
             {
               numero_pedido: order_number,

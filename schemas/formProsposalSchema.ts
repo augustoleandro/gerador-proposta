@@ -50,4 +50,5 @@ export const formProposalSchema = z.object({
     .max(20, { message: "Tag deve ter no máximo 20 caracteres." })
     .optional()
     .nullable(),
+  city: z.string().optional().nullable(),
 });

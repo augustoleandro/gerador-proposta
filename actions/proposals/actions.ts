@@ -27,6 +27,7 @@ export async function createProposal(data: FormData) {
       execution_time: data.get("execution_time"),
       tag: data.get("tag"),
       orders: JSON.parse(data.get("orders") as string),
+      city: data.get("city"),
     });
 
     // Generate PDF first
@@ -96,6 +97,7 @@ export async function createProposal(data: FormData) {
           created_by: user.data.user?.id || null,
           doc_link: pdfUrl,
           tag: proposalData.tag,
+          city: proposalData.city,
         },
       ])
       .select();
