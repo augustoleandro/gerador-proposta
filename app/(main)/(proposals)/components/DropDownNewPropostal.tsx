@@ -21,7 +21,7 @@ function DropDownNewPropostal() {
           Nova Proposta
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-full">
+      <DropdownMenuContent align="start" className="w-42">
         <DropdownMenuItem
           onClick={() => router.push("/gyn/novaproposta")}
           className="cursor-pointer"
