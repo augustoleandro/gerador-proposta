@@ -1,3 +1,33 @@
+{{!-- 
+  TEMPLATE DE PROPOSTA COMERCIAL - AUTOMATIZE
+  
+  Este template gera propostas comerciais em PDF com as seguintes seções:
+  1. Capa com logo e dados do cliente
+  2. Sobre a empresa 
+  3. Equipe
+  4. Diferenciais
+  5. Apresentação do projeto
+  6. Escopo incluso
+  7. Escopo excluso
+  8. Especificações e valores (páginas dinâmicas)
+  9. Resumo de valores
+  10. Condições de pagamento e garantia
+  
+  Variáveis necessárias:
+  - customer_name: Nome do cliente
+  - proposal_date: Data da proposta
+  - doc_revision: Revisão do documento (R01, R02, etc.)
+  - project_type: Tipo/finalidade do projeto
+  - proposal_total_value: Valor total
+  - payment_condition: Condições de pagamento
+  - execution_time: Prazo de execução
+  - showItemValues: Exibir valores individuais ("true"/"false")
+  - orders: Array de soluções com items
+  
+  Helpers necessários:
+  - formatDate, formatCurrency, extenso, chunk, ifEquals, add, calculateItemNumber, lte, gt, eq, last
+--}}
+
 <!DOCTYPE html>
 <html lang="pt-BR">
   <head>
@@ -7,13 +37,17 @@
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
+    {{!-- PÁGINA 1: CAPA --}}
     <div class="page">
       <div class="page-content">
+        {{!-- Logo vertical da Automatize --}}
         <img
           src="https://cnxfzvkctgksepdayrpg.supabase.co/storage/v1/object/sign/files/images/logo_vertical.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJmaWxlcy9pbWFnZXMvbG9nb192ZXJ0aWNhbC5wbmciLCJpYXQiOjE3MjY2NjUxNzMsImV4cCI6MTg4NDM0NTE3M30.2FoblFItDtB7zFBl1fhHfBAwMtubN7VruqzWAM6lXf4&t=2024-09-18T13%3A12%3A54.013Z"
           alt="Logo Automatize"
           width="280px"
         />
+        
+        {{!-- Título principal e data/revisão --}}
         <div
           style="
             display: flex;
@@ -29,6 +63,8 @@
             >{{formatDate proposal_date}} - R{{doc_revision}}</span
           >
         </div>
+        
+        {{!-- Website rotacionado na lateral --}}
         <div style="position: relative; width: 100%">
           <div
             style="
@@ -48,10 +84,14 @@
             >
           </div>
         </div>
+        
+        {{!-- Nome do cliente --}}
         <div style="width: 100%; margin-top: 128px">
           <span class="h2" style="opacity: 0.5"> Preparada para </span>
           <h2 class="text-3xl font-semibold uppercase">{{customer_name}}</h2>
         </div>
+        
+        {{!-- Texto motivacional da empresa --}}
         <div
           style="
             display: flex;
@@ -71,12 +111,16 @@
       </div>
     </div>
 
+    {{!-- PÁGINA 2: SOBRE NÓS --}}
     <div class="page">
+      {{!-- Cabeçalho padrão com logo horizontal e número da página --}}
       <div class="page-header">
         <img src="https://cnxfzvkctgksepdayrpg.supabase.co/storage/v1/object/sign/files/images/logo_horizontal.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJmaWxlcy9pbWFnZXMvbG9nb19ob3Jpem9udGFsLnBuZyIsImlhdCI6MTcyNjY2NTE2MCwiZXhwIjoxODg0MzQ1MTYwfQ.y4eOkMnXn_QnDdCkyE7nB8W0UMJN_P06Z--IHosJAp0&t=2024-09-18T13%3A12%3A40.846Z" alt="Logo Automatize" />
         <span class="page-number"></span>
       </div>
+      
       <div class="page-content">
+        {{!-- Layout de duas colunas: título à esquerda, conteúdo à direita --}}
         <div class="page-columns">
           <div style="display: flex; flex-direction: column; gap: 2px">
             <span class="page-title">SOBRE</span>
@@ -84,11 +128,13 @@
           </div>
 
           <div>
+            {{!-- Foto da fachada da empresa --}}
             <img
               src="https://cnxfzvkctgksepdayrpg.supabase.co/storage/v1/object/sign/files/images/fachada_photo.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJmaWxlcy9pbWFnZXMvZmFjaGFkYV9waG90by5wbmciLCJpYXQiOjE3MjY2NjUyNTIsImV4cCI6MTg4NDM0NTI1Mn0.7gV9_gyOhqPeCjVGl7OjkPHrnbywh8p_nYOh5N9ZZMI&t=2024-09-18T13%3A14%3A12.415Z"
               alt="Foto Fachada Automatize"
               width="100%"
             />
+            {{!-- Texto institucional da empresa --}}
             <p style="text-align: justify; font-size: 16px">
               A <b>Automatize</b> é uma empresa nacional com <b>17 anos</b> de
               mercado, especializada em soluções inovadoras de automação
@@ -124,6 +170,7 @@
 
       <div class="line"></div>
 
+      {{!-- Rodapé padrão com website, Instagram e QR code --}}
       <div class="page-footer">
         <div>
           <span style="font-size: 14px; letter-spacing: 2px">
@@ -157,6 +204,7 @@
       </div>
     </div>
 
+    {{!-- PÁGINA 3: NOSSA EQUIPE --}}
     <div class="page">
       <div class="page-header">
         <img src="https://cnxfzvkctgksepdayrpg.supabase.co/storage/v1/object/sign/files/images/logo_horizontal.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJmaWxlcy9pbWFnZXMvbG9nb19ob3Jpem9udGFsLnBuZyIsImlhdCI6MTcyNjY2NTE2MCwiZXhwIjoxODg0MzQ1MTYwfQ.y4eOkMnXn_QnDdCkyE7nB8W0UMJN_P06Z--IHosJAp0&t=2024-09-18T13%3A12%3A40.846Z" alt="Logo Automatize" />
@@ -164,6 +212,7 @@
       </div>
 
       <div class="page-content">
+        {{!-- Layout de duas colunas: título à esquerda, conteúdo à direita --}}
         <div class="page-columns">
           <div style="display: flex; flex-direction: column; gap: 2px">
             <span class="page-title">NOSSA</span>
@@ -171,11 +220,13 @@
           </div>
 
           <div>
+            {{!-- Foto da equipe da empresa --}}
             <img
               src="https://cnxfzvkctgksepdayrpg.supabase.co/storage/v1/object/sign/files/images/equipe_photo.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJmaWxlcy9pbWFnZXMvZXF1aXBlX3Bob3RvLnBuZyIsImlhdCI6MTcyNjY2NTA5MSwiZXhwIjoxODg0MzQ1MDkxfQ.NoJfdxOjdVJp1X8sQ4plRpsKWgKH-nZMVVfi1lnY08I&t=2024-09-18T13%3A11%3A31.434Z"
               alt="Foto Fachada Automatize"
               width="100%"
             />
+            {{!-- Texto sobre a qualificação e compromisso da equipe --}}
             <p style="text-align: justify; font-size: 16px">
               Na <b>Automatize</b>, acreditamos que o sucesso de qualquer
               projeto depende diretamente da <b>excelência</b> da equipe por
@@ -206,6 +257,7 @@
         </div>
       </div>
 
+      {{!-- Rodapé padrão --}}
       <div class="page-footer">
         <div>
           <span style="font-size: 14px; letter-spacing: 2px">
@@ -239,12 +291,14 @@
       </div>
     </div>
 
+    {{!-- PÁGINA 4: PRINCIPAIS DIFERENCIAIS --}}
     <div class="page">
       <div class="page-header">
         <img src="https://cnxfzvkctgksepdayrpg.supabase.co/storage/v1/object/sign/files/images/logo_horizontal.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJmaWxlcy9pbWFnZXMvbG9nb19ob3Jpem9udGFsLnBuZyIsImlhdCI6MTcyNjY2NTE2MCwiZXhwIjoxODg0MzQ1MTYwfQ.y4eOkMnXn_QnDdCkyE7nB8W0UMJN_P06Z--IHosJAp0&t=2024-09-18T13%3A12%3A40.846Z" alt="Logo Automatize" />
         <span class="page-number"></span>
       </div>
       <div class="page-content">
+        {{!-- Título alinhado à direita --}}
         <div
           style="
             width: 100%;
@@ -258,6 +312,7 @@
           <span class="page-title">DIFERENCIAIS</span>
         </div>
 
+        {{!-- Grid com 6 cards de diferenciais organizados em 3 linhas x 2 colunas --}}
         <div
           style="
             margin-top: 48px;
@@ -266,6 +321,7 @@
             gap: 24px;
           "
         >
+          {{!-- Linha 1: Supervisão e Equipe Capacitada --}}
           <div
             style="
               display: flex;
@@ -297,6 +353,7 @@
 
           <div class="line"></div>
 
+          {{!-- Linha 2: Suporte e Experiência --}}
           <div
             style="
               display: flex;
@@ -327,6 +384,7 @@
 
           <div class="line"></div>
 
+          {{!-- Linha 3: Soluções Robustas e Engenharia --}}
           <div
             style="
               display: flex;
@@ -358,6 +416,7 @@
         </div>
       </div>
 
+      {{!-- Rodapé padrão --}}
       <div class="page-footer">
         <div>
           <span style="font-size: 14px; letter-spacing: 2px">
@@ -391,6 +450,7 @@
       </div>
     </div>
 
+    {{!-- PÁGINA 5: APRESENTAÇÃO DO PROJETO --}}
     <div class="page">
       <div class="page-header">
         <img src="https://cnxfzvkctgksepdayrpg.supabase.co/storage/v1/object/sign/files/images/logo_horizontal.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJmaWxlcy9pbWFnZXMvbG9nb19ob3Jpem9udGFsLnBuZyIsImlhdCI6MTcyNjY2NTE2MCwiZXhwIjoxODg0MzQ1MTYwfQ.y4eOkMnXn_QnDdCkyE7nB8W0UMJN_P06Z--IHosJAp0&t=2024-09-18T13%3A12%3A40.846Z" alt="Logo Automatize" />
@@ -398,6 +458,8 @@
       </div>
       <div class="page-content">
         <span class="page-content-title"> 1. APRESENTAÇÃO </span>
+        
+        {{!-- Seção centralizada com dados do projeto --}}
         <div
           style="
             display: flex;
@@ -424,6 +486,7 @@
           </div>
         </div>
 
+        {{!-- Texto introdutório padrão da proposta --}}
         <span
           style="
             font-size: 18px;
@@ -452,6 +515,7 @@
         </span>
       </div>
 
+      {{!-- Rodapé padrão --}}
       <div class="page-footer">
         <div>
           <span style="font-size: 14px; letter-spacing: 2px">
@@ -485,6 +549,7 @@
       </div>
     </div>
 
+    {{!-- PÁGINA 6: ESCOPO INCLUSO NA PROPOSTA --}}
     <div class="page">
       <div class="page-header">
         <img src="https://cnxfzvkctgksepdayrpg.supabase.co/storage/v1/object/sign/files/images/logo_horizontal.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJmaWxlcy9pbWFnZXMvbG9nb19ob3Jpem9udGFsLnBuZyIsImlhdCI6MTcyNjY2NTE2MCwiZXhwIjoxODg0MzQ1MTYwfQ.y4eOkMnXn_QnDdCkyE7nB8W0UMJN_P06Z--IHosJAp0&t=2024-09-18T13%3A12%3A40.846Z" alt="Logo Automatize" />
@@ -494,6 +559,8 @@
         <span class="page-content-title">
           2. CONSITUI ESCOPO DESTA PROPOSTA
         </span>
+        
+        {{!-- Lista de 6 itens inclusos no escopo --}}
         <div
           style="
             display: flex;
@@ -502,6 +569,7 @@
             margin-top: 32px;
           "
         >
+          {{!-- Item 2.1: Instalação, Configuração e Programação --}}
           <div style="display: flex; flex-direction: column; gap: 8px">
             <span style="font-size: 20px; font-weight: bold"
               >2.1. Instalação, Configuração e Programação</span
@@ -515,6 +583,8 @@
               funcionalidade do sistema.
             </span>
           </div>
+          
+          {{!-- Item 2.2: Acompanhamento e Supervisão --}}
           <div style="display: flex; flex-direction: column; gap: 16px">
             <span style="font-size: 20px; font-weight: bold"
               >2.2. Acompanhamento e Supervisão da Obra</span
@@ -528,6 +598,8 @@
               padrões de qualidade estabelecidos.
             </span>
           </div>
+          
+          {{!-- Item 2.3: Treinamento e Capacitação --}}
           <div style="display: flex; flex-direction: column; gap: 16px">
             <span style="font-size: 20px; font-weight: bold"
               >2.3. Treinamento e Capacitação de Usuários
@@ -540,6 +612,8 @@
               apoio e suporte técnico pós-instalação.
             </span>
           </div>
+          
+          {{!-- Item 2.4: Suporte Técnico e Garantia --}}
           <div style="display: flex; flex-direction: column; gap: 16px">
             <span style="font-size: 20px; font-weight: bold"
               >2.4. Suporte Técnico e Garantia de Qualidade</span
@@ -554,6 +628,8 @@
               técnica é cobrada após o período de garantia de nossos serviços.
             </span>
           </div>
+          
+          {{!-- Item 2.5: Integração com Sistemas Existentes --}}
           <div style="display: flex; flex-direction: column; gap: 16px">
             <span style="font-size: 20px; font-weight: bold"
               >2.5. Integração com Sistemas Existentes
@@ -566,6 +642,8 @@
               junto a terceiros.
             </span>
           </div>
+          
+          {{!-- Item 2.6: Avaliação Final --}}
           <div style="display: flex; flex-direction: column; gap: 16px">
             <span style="font-size: 20px; font-weight: bold"
               >2.6. Avaliação de entrega final
@@ -581,6 +659,7 @@
         </div>
       </div>
 
+      {{!-- Rodapé padrão --}}
       <div class="page-footer">
         <div>
           <span style="font-size: 14px; letter-spacing: 2px">
@@ -614,6 +693,7 @@
       </div>
     </div>
 
+    {{!-- PÁGINA 7: ESCOPO EXCLUSO DA PROPOSTA --}}
     <div class="page">
       <div class="page-header">
         <img src="https://cnxfzvkctgksepdayrpg.supabase.co/storage/v1/object/sign/files/images/logo_horizontal.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJmaWxlcy9pbWFnZXMvbG9nb19ob3Jpem9udGFsLnBuZyIsImlhdCI6MTcyNjY2NTE2MCwiZXhwIjoxODg0MzQ1MTYwfQ.y4eOkMnXn_QnDdCkyE7nB8W0UMJN_P06Z--IHosJAp0&t=2024-09-18T13%3A12%3A40.846Z" alt="Logo Automatize" />
@@ -623,6 +703,8 @@
         <span class="page-content-title">
           3. NÃO CONSTITUI ESCOPO DESTA PROPOSTA
         </span>
+        
+        {{!-- Lista de 6 itens excluídos do escopo --}}
         <div
           style="
             display: flex;
@@ -631,6 +713,7 @@
             margin-top: 32px;
           "
         >
+          {{!-- Item 3.1: Equipamentos de Terceiros --}}
           <div style="display: flex; flex-direction: column; gap: 8px">
             <span style="font-size: 20px; font-weight: bold"
               >3.1. Instalação, Configuração e Programação de Equipamentos de
@@ -644,6 +727,8 @@
               no escopo desta proposta.
             </span>
           </div>
+          
+          {{!-- Item 3.2: Interligação com Terceiros --}}
           <div style="display: flex; flex-direction: column; gap: 16px">
             <span style="font-size: 20px; font-weight: bold"
               >3.2. Interligação de Sistemas com Equipamentos de Terceiros</span
@@ -657,6 +742,8 @@
               interligação.
             </span>
           </div>
+          
+          {{!-- Item 3.3: Infraestrutura Elétrica --}}
           <div style="display: flex; flex-direction: column; gap: 16px">
             <span style="font-size: 20px; font-weight: bold"
               >3.3. Fornecimento e Instalação de Infraestrutura Elétrica
@@ -672,6 +759,8 @@
               eletrocalhas.
             </span>
           </div>
+          
+          {{!-- Item 3.4: Integrações Não Previstas --}}
           <div style="display: flex; flex-direction: column; gap: 16px">
             <span style="font-size: 20px; font-weight: bold"
               >3.4. Integrações Não Previstas</span
@@ -683,6 +772,8 @@
               explicitamente previstos e descritos nesta proposta.
             </span>
           </div>
+          
+          {{!-- Item 3.5: Obras Civis --}}
           <div style="display: flex; flex-direction: column; gap: 16px">
             <span style="font-size: 20px; font-weight: bold"
               >3.5. Obras Civis
@@ -696,6 +787,8 @@
               acabamentos de qualquer espécie.
             </span>
           </div>
+          
+          {{!-- Item 3.6: Acessórios Específicos --}}
           <div style="display: flex; flex-direction: column; gap: 16px">
             <span style="font-size: 20px; font-weight: bold"
               >3.6. Fornecimento de Acessórios Específicos
@@ -711,6 +804,7 @@
         </div>
       </div>
 
+      {{!-- Rodapé padrão --}}
       <div class="page-footer">
         <div>
           <span style="font-size: 14px; letter-spacing: 2px">
@@ -744,6 +838,26 @@
       </div>
     </div>
 
+{{!-- 
+  SEÇÃO DINÂMICA: ESPECIFICAÇÕES E VALORES DAS SOLUÇÕES
+  
+  Esta seção gera páginas dinamicamente baseadas nos dados de 'orders'.
+  Cada 'order' representa uma solução com seus itens.
+  
+  Lógica de paginação melhorada:
+  - Máximo 20 itens por página (helper 'chunk')
+  - Valor da solução aparece na última página se há espaço suficiente
+  - Se não há espaço, cria página adicional só para valor e serviço
+  
+  Critérios de espaço:
+  - ≤15 itens na última página: mostra valor + descrição do serviço
+  - 16-17 itens na última página: mostra apenas valor
+  - ≥18 itens na última página: cria página adicional
+  
+  Variáveis condicionais:
+  - showItemValues: controla exibição da coluna "Valor/un"
+  - @first, @last: controles de posicionamento de títulos e valores
+--}}
 {{#each orders}}
   {{#with this as |order|}}
     {{#each (chunk items 20)}}
@@ -754,17 +868,21 @@
         </div>
         
         <div class="page-content">
+          {{!-- Título principal aparece apenas na primeira página da primeira ordem --}}
           {{#if @first}}
             {{#if @../first}}
               <span class="page-content-title">
                 4. ESPECIFICAÇÕES E VALORES DAS SOLUÇÕES
               </span>
             {{/if}}
+            {{!-- Nome da solução aparece na primeira página de cada ordem --}}
             <span class="h2" style="width: 100%; text-align: left">{{order.description}}</span>
           {{/if}}
 
           <div style="display: flex; flex-direction: column; align-items: start; gap: 16px; margin-top: 48px; width: 100%;">
+            {{!-- Tabela de itens com paginação automática --}}
             <table class="w-full text-md">
+              {{!-- Cabeçalho da tabela aparece apenas na primeira página de cada chunk --}}
               {{#if @first}}
                 <thead>
                   <tr>
@@ -772,6 +890,7 @@
                     <th style="text-align: left">Descrição</th>
                     <th style="text-align: right">Quantidade</th>
                     
+                    {{!-- Coluna de valor unitário é condicional --}}
                     {{#ifEquals ../../showItemValues "true"}}
                       <th style="text-align: right">Valor/un</th>
                     {{/ifEquals}}
@@ -779,11 +898,14 @@
                 </thead>
               {{/if}}
               <tbody>
+                {{!-- Iteração pelos itens do chunk atual --}}
                 {{#each this}}
                   <tr>
+                    {{!-- Numeração sequencial usando helper customizado --}}
                     <td style="font-size: 12px">{{calculateItemNumber @../index @index}}</td>
                     <td style="font-size: 12px">{{name}}</td>
                     <td style="font-size: 12px; text-align: right">{{quantity}}</td>
+                    {{!-- Valor unitário exibido condicionalmente --}}
                     {{#ifEquals ../../../showItemValues "true"}}
                       <td style="font-size: 12px; text-align: right">{{formatCurrency value}}</td>
                     {{/ifEquals}}
@@ -792,19 +914,26 @@
               </tbody>
             </table>
 
+            {{!-- 
+              Lógica melhorada para posicionamento do valor total da solução:
+              - ≤15 itens na última página: mostra valor + descrição do serviço
+              - 16-17 itens na última página: mostra apenas valor  
+              - ≥18 itens na última página: não mostra nada (vai para página adicional)
+            --}}
             {{#if @last}}
-              {{#if (lte this.length 16)}}
-                <p style="width: 100%; text-align: right; font-weight: bold">
+              {{#if (lte this.length 15)}}
+                <p style="width: 100%; text-align: right; font-weight: bold; margin-top: 24px;">
                   Valor da Solução: {{formatCurrency order.value}}
                 </p>
+                {{!-- Descrição do serviço é opcional e só aparece quando há espaço suficiente --}}
                 {{#if order.service_description}}
                   <div style="margin-top: 20px;">
                     <span style="font-weight: bold">Serviço (instalação, configuração e treinamento) da solução acima:</span>   
                     {{formatString order.service_description}}
                   </div>
                 {{/if}}
-              {{else if (lte this.length 18)}}
-                <p style="width: 100%; text-align: right; font-weight: bold">
+              {{else if (lte this.length 17)}}
+                <p style="width: 100%; text-align: right; font-weight: bold; margin-top: 24px;">
                   Valor da Solução: {{formatCurrency order.value}}
                 </p>
               {{/if}}
@@ -812,6 +941,7 @@
           </div>
         </div>
 
+        {{!-- Rodapé padrão em todas as páginas --}}
         <div class="page-footer">
           <div>
             <span style="font-size: 14px; letter-spacing: 2px">
@@ -846,26 +976,49 @@
       </div>
     {{/each}}
 
-    {{#if (or (gt (last order.items) 18) (eq (last order.items) 20))}}
+    {{!-- 
+      PÁGINA ADICIONAL DE VALOR (se necessário)
+      
+      Criada automaticamente quando a última página tem ≥18 itens.
+      Contém apenas o valor da solução e descrição do serviço.
+      
+      Condições melhoradas:
+      - Se última página tem 18+ itens: sempre cria página adicional
+      - Se não há descrição de serviço e última página tem 16-17 itens: também cria página adicional para melhor visual
+    --}}
+    {{#if (or (gte this.length 18) (and (gte this.length 16) (not order.service_description)))}}
       <div class="page">
         <div class="page-header">
           <img src="https://cnxfzvkctgksepdayrpg.supabase.co/storage/v1/object/sign/files/images/logo_horizontal.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJmaWxlcy9pbWFnZXMvbG9nb19ob3Jpem9udGFsLnBuZyIsImlhdCI6MTcyNjY2NTE2MCwiZXhwIjoxODg0MzQ1MTYwfQ.y4eOkMnXn_QnDdCkyE7nB8W0UMJN_P06Z--IHosJAp0&t=2024-09-18T13%3A12%3A40.846Z" alt="Logo Automatize" />
           <span class="page-number"></span>
         </div>
         
-        <div class="page-content">
-          <p style="width: 100%; text-align: right; font-weight: bold">
-            Valor da Solução: {{formatCurrency order.value}}
-          </p>
+        <div class="page-content" style="display: flex; flex-direction: column; justify-content: center; min-height: 500px;">
+          {{!-- Valor total da solução com destaque visual --}}
+          <div style="text-align: center; margin-bottom: 40px;">
+            <p style="font-size: 24px; font-weight: bold; color: #333; margin-bottom: 8px;">
+              Valor da Solução
+            </p>
+            <p style="font-size: 32px; font-weight: bold; color: #000;">
+              {{formatCurrency order.value}}
+            </p>
+          </div>
           
+          {{!-- Descrição do serviço (opcional) com melhor formatação --}}
           {{#if order.service_description}}
-            <div style="margin-top: 20px;">
-              <span style="font-weight: bold">Serviço (instalação, configuração e treinamento) da solução acima:</span> 
+            <div style="margin-top: 40px; padding: 24px; background-color: #f8f9fa; border-left: 4px solid #007bff; border-radius: 4px;">
+              <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 16px; color: #333;">
+                Serviço Incluso
+              </h3>
+              <p style="font-size: 16px; line-height: 1.6; color: #555; margin: 0;">
+                <strong>Instalação, configuração e treinamento:</strong><br>
                 {{formatString order.service_description}}
+              </p>
             </div>
           {{/if}}
         </div>
 
+        {{!-- Rodapé padrão --}}
         <div class="page-footer">
           <div>
             <span style="font-size: 14px; letter-spacing: 2px">
@@ -902,6 +1055,7 @@
   {{/with}}
 {{/each}}
 
+    {{!-- PÁGINA 8: RESUMO - VALORES DAS SOLUÇÕES --}}
     <div class="page">
       <div class="page-header">
         <img src="https://cnxfzvkctgksepdayrpg.supabase.co/storage/v1/object/sign/files/images/logo_horizontal.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJmaWxlcy9pbWFnZXMvbG9nb19ob3Jpem9udGFsLnBuZyIsImlhdCI6MTcyNjY2NTE2MCwiZXhwIjoxODg0MzQ1MTYwfQ.y4eOkMnXn_QnDdCkyE7nB8W0UMJN_P06Z--IHosJAp0&t=2024-09-18T13%3A12%3A40.846Z" alt="Logo Automatize" />
@@ -913,6 +1067,7 @@
           5. RESUMO - VALORES DAS SOLUÇÕES
         </span>
 
+        {{!-- Tabela consolidada com todas as soluções --}}
         <div
           style="
             display: flex;
@@ -932,16 +1087,19 @@
               </tr>
             </thead>
             <tbody>
+              {{!-- Lista todas as ordens/soluções --}}
               {{#each orders}}
               <tr>
+                {{!-- Numeração automática usando helper 'add' --}}
                 <td>{{add @index 1}}</td>
-
                 <td>{{description}}</td>
                 <td style="text-align: right">{{formatCurrency value}}</td>
               </tr>
               {{/each}}
             </tbody>
           </table>
+          
+          {{!-- Valor total geral e valor por extenso --}}
           <p style="width: 100%; text-align: right; font-weight: bold">
             Valor Total: {{formatCurrency proposal_total_value}}
             <br />
@@ -949,6 +1107,8 @@
           </p>
         </div>
       </div>
+      
+      {{!-- Rodapé padrão --}}
       <div class="page-footer">
         <div>
           <span style="font-size: 14px; letter-spacing: 2px">
@@ -982,6 +1142,7 @@
       </div>
     </div>
 
+    {{!-- PÁGINA FINAL: CONDIÇÕES DE PAGAMENTO E GARANTIA --}}
     <div class="page">
       <div class="page-header">
         <img src="https://cnxfzvkctgksepdayrpg.supabase.co/storage/v1/object/sign/files/images/logo_horizontal.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJmaWxlcy9pbWFnZXMvbG9nb19ob3Jpem9udGFsLnBuZyIsImlhdCI6MTcyNjY2NTE2MCwiZXhwIjoxODg0MzQ1MTYwfQ.y4eOkMnXn_QnDdCkyE7nB8W0UMJN_P06Z--IHosJAp0&t=2024-09-18T13%3A12%3A40.846Z" alt="Logo Automatize" />
@@ -989,6 +1150,7 @@
       </div>
 
       <div class="page-content">
+        {{!-- Seção 6: Pagamento --}}
         <div
           style="display: flex; flex-direction: column; gap: 16px; width: 100%"
         >
@@ -997,6 +1159,7 @@
             <span style="font-size: 20px; font-weight: bold"
               >6.1 Condição de Pagamento
             </span>
+            {{!-- Condições de pagamento dinâmicas --}}
             <span
               style="font-size: 18px; text-align: justify; line-height: 1.5"
             >
@@ -1007,6 +1170,7 @@
             <span style="font-size: 20px; font-weight: bold"
               >6.2. Prazo de Execução
             </span>
+            {{!-- Prazo de execução dinâmico --}}
             <span
               style="font-size: 18px; text-align: justify; line-height: 1.5"
             >
@@ -1015,6 +1179,7 @@
           </div>
         </div>
 
+        {{!-- Seção 7: Validade da Proposta --}}
         <div
           style="
             display: flex;
@@ -1026,6 +1191,7 @@
         >
           <span class="page-content-title"> 7. VALIDADE DA PROPOSTA </span>
           <div style="display: flex; flex-direction: column; gap: 16px">
+            {{!-- Texto fixo: 15 dias de validade --}}
             <span
               style="font-size: 18px; text-align: justify; line-height: 1.5"
             >
@@ -1035,6 +1201,8 @@
               resultar em modificações na proposta.
             </span>
           </div>
+          
+          {{!-- Seção 8: Garantia --}}
           <div
             style="
               display: flex;
@@ -1046,6 +1214,7 @@
           >
             <span class="page-content-title"> 8. GARANTIA </span>
 
+            {{!-- Texto de garantia e assinaturas dos engenheiros --}}
             <span
               style="font-size: 18px; text-align: justify; line-height: 1.5"
             >
@@ -1068,6 +1237,7 @@
                 Diretoria Automatize</b
               >
               <br />
+              {{!-- Assinaturas dos engenheiros responsáveis --}}
               Eng. Elet. RAPHAEL SANTOMÉ LEAO REIS – CREA 18.274/D-GO
               <br />
               Eng. Elet. LEANDRO AUGUSTO RIBEIRO MACHADO - CREA 16.168/D-GO

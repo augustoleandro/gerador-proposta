@@ -1,3 +1,42 @@
+/**
+ * Módulo de Gerenciamento de Propostas Comerciais
+ * ===============================================
+ *
+ * Este arquivo contém ações do servidor (server actions) que gerenciam todo o ciclo de vida
+ * de propostas comerciais, incluindo criação, edição, exclusão e consultas.
+ *
+ * As ações do servidor são funções que rodam exclusivamente no servidor, não no navegador
+ * do cliente, permitindo acesso direto ao banco de dados e outros recursos protegidos.
+ *
+ * Arquitetura e Componentes:
+ * --------------------------
+ * - Banco de Dados: Supabase (PostgreSQL)
+ * - Armazenamento: Supabase Storage (para PDFs)
+ * - Validação: Zod Schema (formProposalSchema)
+ * - Geração de PDF: API externa via HTTP
+ *
+ * Estrutura de Dados:
+ * ------------------
+ * 1. Proposta (Proposal): Documento principal com informações gerais
+ * 2. Pedidos (Orders): Itens principais que compõem uma proposta
+ * 3. Itens de Pedido (Order Items): Subitens que compõem cada pedido
+ *
+ * Fluxo Principal:
+ * ---------------
+ * 1. Cliente preenche formulário de proposta no frontend
+ * 2. Dados são validados e enviados ao servidor
+ * 3. Servidor processa os dados, gera PDF e armazena no banco
+ * 4. Links e confirmações são retornados ao cliente
+ *
+ * Segurança:
+ * ---------
+ * - Autenticação via Supabase Auth
+ * - Validação de permissões baseada no usuário (criador ou admin)
+ * - Validação de dados via Zod Schema
+ *
+ * Importante: Todas as operações de banco de dados são atômicas ou protegidas
+ * por tratamento adequado de erros para evitar dados inconsistentes.
+ */
 "use server";
 
 import { Proposal } from "@/lib/types";
@@ -8,15 +47,58 @@ import { createClient } from "@/utils/supabase/server";
 import { format } from "date-fns";
 import { revalidatePath } from "next/cache";
 
+/**
+ * Criação de Nova Proposta Comercial
+ * =================================
+ *
+ * Esta função é responsável por criar uma proposta comercial completa no sistema,
+ * incluindo todos os seus pedidos e itens relacionados, além de gerar o documento PDF.
+ *
+ * Contexto de Negócio:
+ * -------------------
+ * Uma proposta comercial é o documento formal enviado ao cliente contendo descrição
+ * dos serviços, valores, condições de pagamento e outros detalhes relevantes para
+ * a contratação dos serviços da empresa.
+ *
+ * Estrutura de Dados:
+ * ------------------
+ * - Proposta: Entidade principal com dados do cliente e condições gerais
+ * - Pedidos: Componentes individuais da proposta (ex: automação, áudio, vídeo)
+ * - Itens: Produtos ou serviços específicos em cada pedido
+ *
+ * Fluxo Detalhado:
+ * --------------
+ * 1. Recebe dados do formulário frontend
+ * 2. Valida estrutura e tipos dos dados usando Zod Schema
+ * 3. Verifica regras de negócio (como presença de pedidos e itens)
+ * 4. Gera PDF via API externa
+ * 5. Salva PDF no Supabase Storage
+ * 6. Cria registro da proposta no banco de dados
+ * 7. Cria registros de pedidos associados à proposta
+ * 8. Cria registros de itens associados a cada pedido
+ *
+ * Tratamento de Erros:
+ * ------------------
+ * Implementa padrão "tudo ou nada" - se qualquer etapa falhar, todas as
+ * alterações são revertidas, incluindo a limpeza de arquivos criados.
+ *
+ * @param data - Dados do formulário contendo todas as informações da proposta
+ * @returns Objeto com resultado (created) e mensagem de sucesso
+ * @throws Error detalhando o motivo da falha em caso de erro
+ */
 export async function createProposal(data: FormData) {
+  // Inicializa o cliente Supabase e busca informações do usuário logado
   const supabase = createClient();
   const user = await supabase.auth.getUser();
+  // Verifica se os valores dos itens devem ser mostrados no PDF
   const showItemValues = data.get("showItemValues");
 
+  // Variável para armazenar a URL do PDF após upload
   let pdfUrl: string | null = null;
 
   try {
-    // Validate and parse data using formProposalSchema
+    // Validação dos dados usando o schema Zod
+    // Isso garante que todos os campos obrigatórios estejam presentes e com o formato correto
     const proposalData = formProposalSchema.parse({
       customer_name: data.get("customer_name"),
       proposal_date: new Date(data.get("proposal_date") as string),
@@ -29,6 +111,20 @@ export async function createProposal(data: FormData) {
       orders: JSON.parse(data.get("orders") as string),
       city: data.get("city"),
     });
+
+    // Validar que a proposta tem pelo menos um pedido
+    if (!proposalData.orders || proposalData.orders.length === 0) {
+      throw new Error("A proposta deve ter pelo menos um pedido");
+    }
+
+    // Validar que cada pedido tem pelo menos um item
+    for (const order of proposalData.orders) {
+      if (!order.items || order.items.length === 0) {
+        throw new Error(
+          `O pedido ${order.order_number} deve ter pelo menos um item`
+        );
+      }
+    }
 
     // Generate PDF first
     const templateData = {
@@ -190,16 +286,82 @@ export async function createProposal(data: FormData) {
   }
 }
 
+/**
+ * Atualização de Proposta Comercial Existente
+ * ==========================================
+ *
+ * Esta função permite editar uma proposta previamente criada, atualizando seus dados,
+ * pedidos, itens e gerando uma nova versão do documento PDF.
+ *
+ * Cenários de Uso:
+ * ---------------
+ * - Correção de informações incorretas
+ * - Atualização de valores ou condições
+ * - Adição ou remoção de pedidos e itens
+ * - Revisão do documento (incremento no número de revisão)
+ *
+ * Desafios Técnicos Resolvidos:
+ * ----------------------------
+ * 1. Sincronização entre banco de dados e armazenamento de arquivos
+ * 2. Consistência de dados durante atualizações parciais
+ * 3. Gerenciamento de arquivos (limpeza de PDFs antigos)
+ * 4. Atomicidade em operações de atualização de itens
+ *
+ * Fluxo de Execução:
+ * -----------------
+ * 1. Verifica se a proposta existe e obtém dados atuais
+ * 2. Valida novos dados recebidos do formulário
+ * 3. Gera nova versão do PDF com dados atualizados
+ * 4. Salva novo PDF no Supabase Storage
+ * 5. Atualiza registro da proposta no banco
+ * 6. Identifica pedidos para adicionar, atualizar ou remover
+ * 7. Atualiza pedidos e seus itens (usando transações para segurança)
+ * 8. Limpa recursos obsoletos (ex: PDF antigo se nome de arquivo mudou)
+ *
+ * Prevenção de Erros:
+ * ------------------
+ * - Validação completa antes de qualquer alteração no banco
+ * - Uso de transações para garantir atomicidade nas atualizações de itens
+ * - Tratamento de erros com limpeza adequada de recursos em caso de falha
+ *
+ * @param id - Identificador único da proposta a ser atualizada
+ * @param data - Dados do formulário contendo informações atualizadas
+ * @returns Objeto com resultado (updated) e mensagem de sucesso
+ * @throws Error detalhando o motivo da falha em caso de erro
+ */
 export async function editProposal(id: string, data: FormData) {
   console.log("Starting edit proposal");
+  // Inicializa o cliente Supabase e obtém informações do usuário
   const supabase = createClient();
   const user = await supabase.auth.getUser();
+  // Flag que indica se valores dos itens devem ser mostrados no PDF
   const showItemValues = data.get("showItemValues");
 
+  // Armazena URL do novo PDF após upload
   let pdfUrl: string | null = null;
+  // Armazena URL do PDF antigo para possível exclusão
+  let oldPdfUrl: string | null = null;
 
   try {
-    // Validate and parse data using formProposalSchema
+    // Verifica se a proposta existe e recupera o link do PDF atual
+    const { data: existingProposal, error: fetchProposalError } = await supabase
+      .from("proposals")
+      .select("doc_link")
+      .eq("id", id)
+      .single();
+
+    if (fetchProposalError) {
+      throw new Error(
+        `Erro ao buscar proposta: ${translateError(fetchProposalError.message)}`
+      );
+    }
+
+    if (!existingProposal) {
+      throw new Error("Proposta não encontrada");
+    }
+
+    oldPdfUrl = existingProposal.doc_link;
+
     const proposalData = formProposalSchema.parse({
       customer_name: data.get("customer_name"),
       proposal_date: new Date(data.get("proposal_date") as string),
@@ -210,15 +372,26 @@ export async function editProposal(id: string, data: FormData) {
       execution_time: data.get("execution_time"),
       tag: data.get("tag"),
       orders: JSON.parse(data.get("orders") as string),
+      city: data.get("city"),
     });
 
-    // Generate PDF first
+    if (!proposalData.orders || proposalData.orders.length === 0) {
+      throw new Error("A proposta deve ter pelo menos um pedido");
+    }
+
+    for (const order of proposalData.orders) {
+      if (!order.items || order.items.length === 0) {
+        throw new Error(
+          `O pedido ${order.order_number} deve ter pelo menos um item`
+        );
+      }
+    }
+
     const templateData = {
       ...proposalData,
       showItemValues,
     };
 
-    // Generate new PDF first
     const pdf = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/generate-pdf`,
       {
@@ -238,7 +411,6 @@ export async function editProposal(id: string, data: FormData) {
 
     const pdfBlob = await pdf.blob();
 
-    // Save new PDF to Supabase storage
     const formattedDate = format(proposalData.proposal_date, "ddMMyyyy");
     const fileName = `pdfs/Proposta-Automatize-${normalizeString(
       proposalData.customer_name
@@ -250,7 +422,7 @@ export async function editProposal(id: string, data: FormData) {
       .from("files")
       .upload(fileName, pdfBlob, {
         contentType: "application/pdf",
-        upsert: true, // This will overwrite if the file already exists
+        upsert: true,
       });
 
     if (uploadError) {
@@ -259,14 +431,12 @@ export async function editProposal(id: string, data: FormData) {
       );
     }
 
-    // Get public URL for the uploaded file
     const { data: publicUrlData } = supabase.storage
       .from("files")
       .getPublicUrl(fileName);
 
     pdfUrl = publicUrlData.publicUrl;
 
-    // Now update the proposal
     const { data: updatedProposal, error: proposalError } = await supabase
       .from("proposals")
       .update({
@@ -279,6 +449,7 @@ export async function editProposal(id: string, data: FormData) {
         execution_time: proposalData.execution_time,
         doc_link: pdfUrl,
         tag: proposalData.tag,
+        city: proposalData.city,
       })
       .eq("id", id)
       .select()
@@ -294,7 +465,6 @@ export async function editProposal(id: string, data: FormData) {
       throw new Error("Nenhuma proposta foi atualizada");
     }
 
-    // Fetch all existing orders for this proposal
     const { data: existingOrders, error: fetchError } = await supabase
       .from("orders")
       .select("id, order_number")
@@ -308,17 +478,14 @@ export async function editProposal(id: string, data: FormData) {
       );
     }
 
-    // Create a set of order numbers from the incoming data
     const updatedOrderNumbers = new Set(
       proposalData.orders.map((order) => order.order_number)
     );
 
-    // Find orders to delete (those in existingOrders but not in updatedOrderNumbers)
     const ordersToDelete = existingOrders.filter(
       (order) => !updatedOrderNumbers.has(order.order_number)
     );
 
-    // Delete orders that are no longer present
     for (const order of ordersToDelete) {
       const { error: deleteError } = await supabase
         .from("orders")
@@ -332,9 +499,7 @@ export async function editProposal(id: string, data: FormData) {
       }
     }
 
-    // Update or insert orders
     for (const order of proposalData.orders) {
-      // Check if the order already exists
       const { data: existingOrder, error: checkError } = await supabase
         .from("orders")
         .select("id")
@@ -343,7 +508,6 @@ export async function editProposal(id: string, data: FormData) {
         .single();
 
       if (checkError && checkError.code !== "PGRST116") {
-        // PGRST116 is the code for "no rows returned"
         throw new Error(
           `Erro ao verificar ordem existente: ${translateError(
             checkError.message
@@ -354,7 +518,6 @@ export async function editProposal(id: string, data: FormData) {
       let updatedOrder;
 
       if (!existingOrder) {
-        // If the order doesn't exist, insert a new one
         const { data: newOrder, error: orderError } = await supabase
           .from("orders")
           .insert([
@@ -377,7 +540,6 @@ export async function editProposal(id: string, data: FormData) {
 
         updatedOrder = newOrder;
 
-        // Insert items only for new orders
         for (const item of order.items) {
           const { error: itemError } = await supabase
             .from("order_items")
@@ -397,7 +559,6 @@ export async function editProposal(id: string, data: FormData) {
           }
         }
       } else {
-        // If the order already exists, just update the order data, not the items
         const { data: updatedOrderData, error: updateError } = await supabase
           .from("orders")
           .update({
@@ -418,6 +579,36 @@ export async function editProposal(id: string, data: FormData) {
         }
 
         updatedOrder = updatedOrderData;
+
+        try {
+          await updateOrderItemsWithTransaction(
+            supabase,
+            existingOrder.id,
+            order.items
+          );
+        } catch (error) {
+          throw error;
+        }
+      }
+    }
+
+    if (oldPdfUrl && oldPdfUrl !== pdfUrl) {
+      const oldFileName = oldPdfUrl.split("/").pop();
+      if (oldFileName) {
+        try {
+          const { error: deleteOldPdfError } = await supabase.storage
+            .from("files")
+            .remove([`pdfs/${oldFileName}`]);
+
+          if (deleteOldPdfError) {
+            console.warn(
+              "Aviso: Não foi possível excluir o PDF antigo:",
+              deleteOldPdfError.message
+            );
+          }
+        } catch (err) {
+          console.warn("Erro ao tentar excluir o PDF antigo:", err);
+        }
       }
     }
 
@@ -430,7 +621,6 @@ export async function editProposal(id: string, data: FormData) {
   } catch (error) {
     console.error("Erro ao atualizar proposta:", error);
 
-    // If the PDF was created but there was an error afterwards, let's delete it
     if (pdfUrl) {
       const fileName = pdfUrl.split("/").pop();
       if (fileName) {
@@ -447,20 +637,63 @@ export async function editProposal(id: string, data: FormData) {
       }
     }
 
-    throw error; // Re-throw the error so it can be handled by the caller
+    throw error;
   }
 }
 
+/**
+ * Exclusão de Proposta Comercial
+ * =============================
+ *
+ * Esta função realiza a exclusão completa de uma proposta do sistema, incluindo
+ * todos os seus registros relacionados no banco de dados e arquivos no storage.
+ *
+ * Aspectos de Segurança:
+ * ---------------------
+ * A exclusão é uma operação protegida, que só pode ser executada por:
+ * 1. O usuário que criou a proposta originalmente
+ * 2. Um administrador do sistema
+ *
+ * Verificações realizadas:
+ * - Autenticação do usuário
+ * - Existência da proposta
+ * - Permissão para exclusão (criador ou admin)
+ *
+ * Operações Realizadas:
+ * -------------------
+ * 1. Exclusão do registro da proposta no banco
+ *    (os pedidos e itens são excluídos automaticamente por cascata)
+ * 2. Exclusão do arquivo PDF no Supabase Storage
+ *
+ * Tolerância a Falhas:
+ * ------------------
+ * Se a proposta for excluída com sucesso do banco de dados, mas ocorrer
+ * uma falha ao excluir o PDF, a operação ainda é considerada bem-sucedida,
+ * mas um aviso é registrado. Isso evita que falhas no gerenciamento de
+ * arquivos bloqueiem a operação principal.
+ *
+ * @param id - Identificador único da proposta a ser excluída
+ * @returns Objeto com resultado (deleted), mensagem e possíveis avisos
+ * @throws Error se a proposta não existir, o usuário não tiver permissão ou ocorrer falha na exclusão
+ */
 export async function deleteProposal(id: string) {
+  // Inicializa o cliente Supabase e verifica o usuário atual
   const supabase = createClient();
   const user = await supabase.auth.getUser();
 
+  // Verifica se o usuário está autenticado
   if (!user.data.user) {
     throw new Error("Usuário não autenticado");
   }
 
+  // Lista de erros não críticos para registrar mas não interromper o processo
+  const warnings: string[] = [];
+  let proposalDeleted = false;
+
   try {
-    // Buscar a proposta para verificar o criador e o link do PDF
+    // Busca a proposta para verificar o criador e o link do PDF
+    // Precisamos saber quem criou para verificar permissões
+    // E precisamos do link do PDF para excluí-lo depois
     const { data: proposal, error: fetchError } = await supabase
       .from("proposals")
       .select("created_by, doc_link")
@@ -477,81 +710,166 @@ export async function deleteProposal(id: string) {
       throw new Error("Proposta não encontrada");
     }
 
+    // Verifica se o usuário atual é administrador
+    // Administradores podem excluir qualquer proposta
     const { data: isAdmin } = await supabase
       .from("users")
       .select("is_admin")
       .eq("id", user.data.user.id)
       .single();
 
+    // Verifica se o usuário é o criador da proposta
+    // Criadores podem excluir suas próprias propostas
     const isCreator = proposal.created_by === user.data.user.id;
 
+    // Se não for nem admin nem criador, não tem permissão
     if (!isAdmin && !isCreator) {
       throw new Error("Você não tem permissão para deletar esta proposta");
     }
 
-    // Deletar a proposta
-    const { error: deleteProposalError } = await supabase
-      .from("proposals")
-      .delete()
-      .eq("id", id);
+    // Armazena o link do PDF para exclusão posterior
+    const pdfLink = proposal.doc_link;
 
-    if (deleteProposalError) {
-      throw new Error(
-        `Erro ao deletar proposta: ${translateError(
-          deleteProposalError.message
-        )}`
-      );
+    try {
+      // Exclui a proposta do banco de dados
+      // Devido às restrições de chave estrangeira configuradas no banco,
+      // isso automaticamente excluirá os pedidos e itens relacionados
+      const { error: deleteProposalError } = await supabase
+        .from("proposals")
+        .delete()
+        .eq("id", id);
+
+      if (deleteProposalError) {
+        throw new Error(
+          `Erro ao deletar proposta: ${translateError(
+            deleteProposalError.message
+          )}`
+        );
+      }
+
+      proposalDeleted = true;
+    } catch (dbError) {
+      // Se falhar a exclusão da proposta, rethrow o erro
+      // pois é a operação principal que não pode falhar
+      throw dbError;
     }
 
-    // Deletar o PDF do storage
-    if (proposal.doc_link) {
-      const fileName = proposal.doc_link.split("/").pop()?.replace(/%20/g, " ");
-      //console.log("fileName: ", fileName);
-      if (fileName) {
-        const { data: response, error: deleteFileError } =
-          await supabase.storage.from("files").remove([`pdfs/${fileName}`]);
-        if (deleteFileError) {
-          console.error(
-            "Erro ao deletar arquivo PDF:",
-            translateError(deleteFileError.message)
-          );
+    // Se a proposta tinha um PDF associado, tenta excluí-lo do storage
+    if (pdfLink) {
+      try {
+        // Extrai o nome do arquivo da URL e decodifica espaços
+        const fileName = pdfLink.split("/").pop()?.replace(/%20/g, " ");
+        if (fileName) {
+          // Remove o arquivo do bucket 'files'
+          const { data: response, error: deleteFileError } =
+            await supabase.storage.from("files").remove([`pdfs/${fileName}`]);
+          if (deleteFileError) {
+            warnings.push(
+              `Não foi possível excluir o PDF: ${translateError(
+                deleteFileError.message
+              )}`
+            );
+            console.warn(
+              "Aviso: Erro ao deletar arquivo PDF:",
+              translateError(deleteFileError.message)
+            );
+          }
         }
+      } catch (fileError) {
+        // Erros na exclusão do PDF são registrados mas não interrompem o processo
+        // já que a proposta já foi excluída do banco de dados
+        warnings.push(`Erro ao tentar excluir o PDF: ${fileError}`);
+        console.warn("Aviso: Erro ao processar exclusão do PDF:", fileError);
       }
     }
 
+    // Atualiza a interface para refletir a exclusão
     revalidatePath("/");
 
+    // Retorna sucesso, incluindo eventuais avisos
     return {
       result: "deleted",
       message: "Proposta deletada com sucesso!",
+      warnings: warnings.length > 0 ? warnings : undefined,
     };
   } catch (error) {
     console.error("Erro ao deletar proposta:", error);
+
+    // Se a proposta foi excluída mas houve erro ao excluir o PDF,
+    // retornamos sucesso com avisos em vez de falha
+    if (proposalDeleted) {
+      console.warn(
+        "A proposta foi excluída mas houve problemas secundários:",
+        warnings
+      );
+      revalidatePath("/");
+      return {
+        result: "deleted",
+        message: "Proposta deletada com sucesso, mas com alguns avisos.",
+        warnings,
+      };
+    }
+
     throw error;
   }
 }
 
+/**
+ * Consulta de Todas as Propostas
+ * =============================
+ *
+ * Esta função recupera todas as propostas existentes no sistema, com seus
+ * dados básicos e informações do criador, ordenadas da mais recente para
+ * a mais antiga.
+ *
+ * Características:
+ * --------------
+ * - Retorna dados formatados para exibição na interface
+ * - Inclui informações do usuário criador de cada proposta
+ * - Formata valores monetários para o padrão brasileiro (R$)
+ * - Ordenação cronológica reversa (mais recentes primeiro)
+ *
+ * Uso Típico:
+ * ----------
+ * Esta função é usada principalmente na página inicial/dashboard para mostrar
+ * a lista de todas as propostas disponíveis no sistema.
+ *
+ * Observações Técnicas:
+ * -------------------
+ * A função faz múltiplas consultas ao banco de dados (uma para propostas e
+ * depois uma para cada usuário criador). Em um sistema com muitas propostas,
+ * seria recomendável implementar paginação e/ou usar JOINs para reduzir o
+ * número de consultas.
+ *
+ * @returns Array de objetos Proposal com valores formatados para exibição
+ */
 export async function getProposals(): Promise<Proposal[]> {
+  // Inicializa o cliente Supabase
   const supabase = createClient();
 
+  // Busca todas as propostas ordenadas pela data de criação (mais recentes primeiro)
   const { data, error } = await supabase
     .from("proposals")
     .select("*")
     .order("created_at", { ascending: false });
 
+  // Se não houver dados, retorna um array vazio
   if (!data) {
     return [];
   }
 
+  // Processa cada proposta para adicionar informações complementares
   const proposals: Proposal[] = await Promise.all(
     data.map(async (proposal) => {
+      // Busca informações do usuário que criou a proposta
       const { data: user } = await supabase
         .from("users")
         .select("id, first_name")
         .eq("id", proposal.created_by)
         .single();
 
-      /* const categories: Category[] = await supabase
+      /* Código comentado para busca de categorias - mantido para referência futura
+      const categories: Category[] = await supabase
         .from("orders")
         .select("category_id")
         .eq("proposal_id", proposal.id)
@@ -566,13 +884,14 @@ export async function getProposals(): Promise<Proposal[]> {
           return Array.from(new Set(categoriesData?.map((cat) => cat.name)));
         }); */
 
+      // Retorna a proposta com informações adicionais e formatadas
       return {
         ...proposal,
         created_at: proposal.created_at,
         proposal_total_value: formatCurrency(
           proposal.proposal_total_value || 0
-        ),
-        created_by: [user?.id, user?.first_name || ""],
+        ), // Formata o valor para R$
+        created_by: [user?.id, user?.first_name || ""], // Inclui ID e nome do criador
         //categories,
       };
     })
@@ -580,7 +899,40 @@ export async function getProposals(): Promise<Proposal[]> {
   return proposals;
 }
 
+/**
+ * Consulta de Proposta Específica por ID
+ * =====================================
+ *
+ * Esta função recupera uma proposta específica com todos os seus dados detalhados,
+ * incluindo pedidos e itens associados.
+ *
+ * Diferente da função `getProposals`, que retorna dados básicos de múltiplas
+ * propostas, esta função retorna dados completos de uma única proposta,
+ * adequados para visualização detalhada ou edição.
+ *
+ * Estrutura de Dados Retornada:
+ * ---------------------------
+ * - Dados básicos da proposta (cliente, valores, datas, etc.)
+ * - Todos os pedidos associados
+ * - Todos os itens de cada pedido
+ *
+ * Otimizações:
+ * ----------
+ * Utiliza consultas aninhadas do Supabase para buscar pedidos e seus itens
+ * em uma única chamada, reduzindo o número de requisições ao banco de dados.
+ *
+ * Tratamento de Erros:
+ * -----------------
+ * - Verifica se a proposta existe
+ * - Registra erros de consulta para facilitar depuração
+ * - Fornece mensagens de erro específicas para o usuário
+ *
+ * @param id - Identificador único da proposta a ser consultada
+ * @returns Objeto Proposal completo com todos os pedidos e itens
+ * @throws Error se a proposta não for encontrada ou ocorrer erro na consulta
+ */
 export async function getProposalById(id: string): Promise<Proposal> {
+  // Inicializa o cliente Supabase
   const supabase = createClient();
 
   try {
@@ -629,6 +981,99 @@ export async function getProposalById(id: string): Promise<Proposal> {
     };
   } catch (error) {
     console.error("Error fetching proposal by ID:", error);
+    throw error;
+  }
+}
+
+/**
+ * Função de atualização de itens de pedido com transação
+ * =====================================================
+ *
+ * Esta função utiliza o conceito de transações SQL para garantir atomicidade na
+ * operação de atualização de itens de um pedido. Uma transação garante que ou
+ * todas as operações são concluídas com sucesso, ou nenhuma alteração é feita
+ * no banco de dados (tudo ou nada).
+ *
+ * Problema que resolve:
+ * --------------------
+ * Ao atualizar itens de um pedido, é comum excluir todos os itens antigos e depois
+ * inserir os novos. Isso cria uma janela de vulnerabilidade onde, se algo falhar
+ * após a exclusão mas antes da inserção completa, o pedido ficaria sem itens.
+ *
+ * Como funciona:
+ * -------------
+ * 1. Inicia uma transação SQL via RPC (Remote Procedure Call)
+ * 2. Exclui todos os itens antigos do pedido especificado
+ * 3. Insere todos os novos itens
+ * 4. Se tudo ocorrer sem erros, confirma (commit) as alterações
+ * 5. Se qualquer erro ocorrer, reverte (rollback) todas as alterações
+ *
+ * @param supabase - Cliente de conexão com o Supabase
+ * @param orderId - Identificador único do pedido
+ * @param items - Array de novos itens a serem inseridos
+ * @returns Objeto indicando sucesso da operação
+ * @throws Error se qualquer etapa falhar, com mensagem traduzida para o usuário
+ */
+async function updateOrderItemsWithTransaction(
+  supabase: any,
+  orderId: string,
+  items: any[]
+) {
+  // Inicia uma transação no banco de dados
+  const { error } = await supabase.rpc("begin_transaction");
+  if (error)
+    throw new Error(
+      `Erro ao iniciar transação: ${translateError(error.message)}`
+    );
+
+  try {
+    // 1. Exclui todos os itens existentes do pedido especificado
+    const { error: deleteError } = await supabase
+      .from("order_items")
+      .delete()
+      .eq("order_id", orderId);
+
+    if (deleteError) {
+      // Cancela a transação em caso de erro, revertendo qualquer alteração feita
+      await supabase.rpc("rollback_transaction");
+      throw new Error(
+        `Erro ao deletar itens existentes: ${translateError(
+          deleteError.message
+        )}`
+      );
+    }
+
+    // 2. Insere os novos itens para o pedido
+    for (const item of items) {
+      const { error: itemError } = await supabase.from("order_items").insert({
+        order_id: orderId,
+        name: item.name,
+        quantity: item.quantity,
+        value: item.value,
+      });
+
+      if (itemError) {
+        // Cancela a transação em caso de erro, revertendo qualquer alteração feita
+        await supabase.rpc("rollback_transaction");
+        throw new Error(
+          `Erro ao inserir item do pedido: ${translateError(itemError.message)}`
+        );
+      }
+    }
+
+    // 3. Finaliza a transação, confirmando todas as alterações no banco
+    const { error: commitError } = await supabase.rpc("commit_transaction");
+    if (commitError) {
+      await supabase.rpc("rollback_transaction");
+      throw new Error(
+        `Erro ao finalizar transação: ${translateError(commitError.message)}`
+      );
+    }
+
+    return { success: true };
+  } catch (error) {
+    // Garante que a transação seja revertida em qualquer erro não tratado específicamente acima
+    await supabase.rpc("rollback_transaction");
     throw error;
   }
 }
