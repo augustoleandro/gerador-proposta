@@ -16,8 +16,21 @@ import convertapiFactory from "convertapi";
 import extenso from "extenso";
 import { promises as fs } from "fs";
 import { mkdir } from "fs/promises";
-import Handlebars from "handlebars";
 import path from "path";
+
+// Importação dinâmica do Handlebars para evitar problemas com webpack
+let Handlebars: any = null;
+
+/**
+ * Inicializa o Handlebars com dynamic import
+ */
+async function initHandlebars() {
+  if (!Handlebars) {
+    Handlebars = (await import("handlebars")).default;
+    registerAllHelpers();
+  }
+  return Handlebars;
+}
 
 // Validar se a variável de ambiente existe
 if (!process.env.CONVERT_API_SECRET) {
@@ -43,245 +56,257 @@ interface HandlebarsOptions {
 }
 
 /**
- * HELPERS DO HANDLEBARS
- *
- * Os helpers abaixo são registrados no Handlebars para uso nos templates.
- * Eles fornecem funcionalidades como formatação de moeda, datas, operações
- * matemáticas e manipulação de arrays.
+ * Registra todos os helpers do Handlebars
+ * Centraliza o registro para evitar problemas de timing
  */
+function registerAllHelpers() {
+  if (!Handlebars) return;
 
-/**
- * Formata um número como moeda brasileira (R$)
- * @param value - Valor numérico a ser formatado
- * @returns String formatada como moeda (ex: R$ 1.234,56)
- */
-Handlebars.registerHelper("formatCurrency", function (value: number) {
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(value);
-});
-
-/**
- * Formata uma data no padrão dia.MêsPorExtenso.ano
- * @param date - Data a ser formatada
- * @returns String formatada (ex: 01.Janeiro.2023)
- */
-Handlebars.registerHelper("formatDate", function (date: string | Date) {
-  const d = new Date(date);
-  const day = d.getDate().toString().padStart(2, "0");
-  const month = d.toLocaleString("pt-BR", { month: "long" });
-  const year = d.getFullYear();
-  return `${day}.${month.charAt(0).toUpperCase() + month.slice(1)}.${year}`;
-});
-
-/**
- * Converte um valor numérico para o seu equivalente por extenso em português
- * @param value - Valor numérico a ser convertido
- * @returns String com o valor por extenso (ex: "Um mil duzentos e trinta e quatro reais e cinquenta e seis centavos")
- */
-Handlebars.registerHelper("extenso", (value: number) => {
-  if (typeof value !== "number" || isNaN(value)) {
-    console.error("Valor inválido para extenso:", value);
-    return "Valor inválido";
-  }
-  try {
-    // Converter o valor para o formato brasileiro
-    const formatter = new Intl.NumberFormat("pt-BR", {
-      style: "decimal",
-      minimumFractionDigits: 2,
-    });
-    const valorFormatado = formatter.format(value);
-
-    // A biblioteca extenso pode ter problemas com formatação, remover pontos e vírgulas
-    const valorLimpo = valorFormatado.replace(/\./g, "").replace(",", ".");
-
-    const valorPorExtenso = extenso(valorLimpo, {
-      mode: "currency",
-      currency: { type: "BRL" },
-    });
-    return valorPorExtenso.charAt(0).toUpperCase() + valorPorExtenso.slice(1);
-  } catch (error) {
-    console.error("Erro ao converter para extenso:", error, value);
-    return `Valor não formatado: ${value}`;
-  }
-});
-
-/**
- * Soma dois números
- * @param a - Primeiro número
- * @param b - Segundo número
- * @returns Soma de a e b
- */
-Handlebars.registerHelper("add", function (a: number, b: number) {
-  return a + b;
-});
-
-/**
- * Multiplica dois números
- * @param a - Primeiro número
- * @param b - Segundo número
- * @returns Produto de a e b
- */
-Handlebars.registerHelper("multiply", function (a: number, b: number) {
-  return a * b;
-});
-
-/**
- * Divide um array em pedaços (chunks) de tamanho especificado
- * Útil para paginar itens em múltiplas páginas no PDF
- * @param array - Array a ser dividido
- * @param size - Tamanho de cada pedaço
- * @returns Array de arrays, cada um contendo no máximo 'size' elementos
- */
-Handlebars.registerHelper("chunk", function (array: any[], size: number) {
-  if (!Array.isArray(array)) {
-    return [];
-  }
-
-  const chunks = [];
-  for (let i = 0; i < array.length; i += size) {
-    chunks.push(array.slice(i, i + size));
-  }
-  return chunks;
-});
-
-/**
- * Calcula o número sequencial de um item baseado em sua posição em chunks
- * @param chunkIndex - Índice do chunk atual
- * @param itemIndex - Índice do item dentro do chunk atual
- * @returns Número sequencial do item na lista completa
- */
-Handlebars.registerHelper(
-  "calculateItemNumber",
-  function (chunkIndex: number, itemIndex: number) {
-    const itemsPerChunk = 20;
-    return chunkIndex * itemsPerChunk + itemIndex + 1;
-  }
-);
-
-/**
- * Verifica se todos os argumentos são verdadeiros (operador lógico AND)
- * @returns Boolean indicando se todos os argumentos são verdadeiros
- */
-Handlebars.registerHelper("and", function () {
-  return Array.prototype.slice.call(arguments, 0, -1).every(Boolean);
-});
-
-/**
- * Implementa a lógica condicional "unless" (a menos que)
- * @param conditional - Condição a ser avaliada
- * @param options - Opções do helper
- * @returns Conteúdo do bloco 'fn' se a condição for falsa, ou 'inverse' se for verdadeira
- */
-Handlebars.registerHelper(
-  "unless",
-  function (
-    this: HandlebarsHelperThis,
-    conditional: boolean,
-    options: HandlebarsOptions
-  ) {
-    if (!conditional) {
-      return options.fn(this);
-    } else {
-      return options.inverse(this);
-    }
-  }
-);
-
-/**
- * Verifica se o primeiro valor é menor ou igual ao segundo (<=)
- * @param a - Primeiro valor
- * @param b - Segundo valor
- * @returns Boolean indicando se a <= b
- */
-Handlebars.registerHelper("lte", function (a: number, b: number) {
-  return a <= b;
-});
-
-/**
- * Verifica se o primeiro valor é maior que o segundo (>)
- * @param a - Primeiro valor
- * @param b - Segundo valor
- * @returns Boolean indicando se a > b
- */
-Handlebars.registerHelper("gt", function (a: number, b: number) {
-  return a > b;
-});
-
-/**
- * Verifica se dois valores são estritamente iguais (===)
- * @param a - Primeiro valor
- * @param b - Segundo valor
- * @returns Boolean indicando se a === b
- */
-Handlebars.registerHelper("eq", function (a: any, b: any) {
-  return a === b;
-});
-
-/**
- * Verifica se pelo menos um dos argumentos é verdadeiro (operador lógico OR)
- * @returns Boolean indicando se pelo menos um argumento é verdadeiro
- */
-Handlebars.registerHelper("or", function () {
-  return Array.prototype.slice.call(arguments, 0, -1).some(Boolean);
-});
-
-/**
- * Retorna o comprimento do último array em um array de arrays
- * Útil para paginar itens em tabelas
- * @param array - Array de arrays
- * @returns Comprimento do último array, ou 0 se não existir
- */
-Handlebars.registerHelper("last", function (array: any[][]) {
-  if (!Array.isArray(array) || array.length === 0) {
-    return 0;
-  }
-  const lastArray = array[array.length - 1];
-  return Array.isArray(lastArray) ? lastArray.length : 0;
-});
-
-/**
- * Verifica se dois valores são iguais (com coerção de tipo, ==)
- * @param arg1 - Primeiro valor
- * @param arg2 - Segundo valor
- * @param options - Opções do helper
- * @returns Conteúdo do bloco 'fn' se os valores forem iguais, ou 'inverse' se forem diferentes
- */
-Handlebars.registerHelper(
-  "ifEquals",
-  function (
-    this: HandlebarsHelperThis,
-    arg1: any,
-    arg2: any,
-    options: HandlebarsOptions
-  ) {
-    return arg1 == arg2 ? options.fn(this) : options.inverse(this);
-  }
-);
-
-/**
- * Formata uma string separada por ponto-e-vírgula em uma lista HTML
- * @param string - String com itens separados por ponto-e-vírgula
- * @returns SafeString do Handlebars contendo uma lista HTML
- */
-Handlebars.registerHelper("formatString", function (string: string) {
-  if (!string) {
-    return new Handlebars.SafeString("");
-  }
-
-  const lines = string
-    .split(";")
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0);
-
-  const formattedLines = lines.map((line) => {
-    // Usar escapeExpression para prevenir XSS
-    return "<li>" + Handlebars.escapeExpression(line) + "</li>";
+  /**
+   * Formata um número como moeda brasileira (R$)
+   */
+  Handlebars.registerHelper("formatCurrency", function (value: number) {
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(value);
   });
 
-  return new Handlebars.SafeString("<ul>" + formattedLines.join("") + "</ul>");
-});
+  /**
+   * Formata uma data no padrão dia.MêsPorExtenso.ano
+   */
+  Handlebars.registerHelper("formatDate", function (date: string | Date) {
+    const d = new Date(date);
+    const day = d.getDate().toString().padStart(2, "0");
+    const month = d.toLocaleString("pt-BR", { month: "long" });
+    const year = d.getFullYear();
+    return `${day}.${month.charAt(0).toUpperCase() + month.slice(1)}.${year}`;
+  });
+
+  /**
+   * Converte um valor numérico para o seu equivalente por extenso em português
+   */
+  Handlebars.registerHelper("extenso", (value: any) => {
+    // Converter para número se necessário
+    let numericValue: number;
+
+    if (typeof value === "string") {
+      // Remove formatação se for string
+      const cleanValue = value.replace(/[^\d,-]/g, "").replace(",", ".");
+      numericValue = parseFloat(cleanValue);
+    } else if (typeof value === "number") {
+      numericValue = value;
+    } else {
+      console.error("❌ Valor inválido para extenso:", value, typeof value);
+      return "Valor inválido";
+    }
+
+    // Validar se é um número válido
+    if (isNaN(numericValue) || !isFinite(numericValue)) {
+      console.error(
+        "❌ Valor inválido para extenso:",
+        value,
+        "convertido para:",
+        numericValue
+      );
+      return "Valor inválido";
+    }
+
+    // Garantir que o valor seja positivo
+    if (numericValue < 0) {
+      console.error("❌ Valor negativo para extenso:", numericValue);
+      return "Valor negativo";
+    }
+
+    try {
+      // Arredondar para 2 casas decimais para evitar problemas de precisão
+      const valorArredondado = Math.round(numericValue * 100) / 100;
+
+      // Usar nossa própria lógica que funciona melhor que a biblioteca extenso
+      const valorSimples = Math.floor(valorArredondado);
+      const centavos = Math.round((valorArredondado - valorSimples) * 100);
+
+      // Converter reais por extenso
+      const reaisPorExtenso = extenso(valorSimples, { mode: "number" });
+
+      // Montar resultado
+      let resultado =
+        reaisPorExtenso.charAt(0).toUpperCase() + reaisPorExtenso.slice(1);
+      resultado += valorSimples === 1 ? " real" : " reais";
+
+      // Adicionar centavos se existirem
+      if (centavos > 0) {
+        const centavosPorExtenso = extenso(centavos, { mode: "number" });
+        resultado += " e " + centavosPorExtenso;
+        resultado += centavos === 1 ? " centavo" : " centavos";
+      }
+
+      return resultado;
+    } catch (error) {
+      console.error("💥 Erro ao converter para extenso:", error);
+
+      // Último recurso: formatação simples
+      return `${new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      }).format(numericValue)} (valor por extenso indisponível)`;
+    }
+  });
+
+  /**
+   * Soma dois números
+   */
+  Handlebars.registerHelper("add", function (a: number, b: number) {
+    return a + b;
+  });
+
+  /**
+   * Multiplica dois números
+   */
+  Handlebars.registerHelper("multiply", function (a: number, b: number) {
+    return a * b;
+  });
+
+  /**
+   * Divide um array em pedaços (chunks) de tamanho especificado
+   */
+  Handlebars.registerHelper("chunk", function (array: any[], size: number) {
+    if (!Array.isArray(array)) {
+      return [];
+    }
+    const chunks = [];
+    for (let i = 0; i < array.length; i += size) {
+      chunks.push(array.slice(i, i + size));
+    }
+    return chunks;
+  });
+
+  /**
+   * Calcula o número sequencial de um item baseado em sua posição em chunks
+   */
+  Handlebars.registerHelper(
+    "calculateItemNumber",
+    function (chunkIndex: number, itemIndex: number) {
+      const itemsPerChunk = 20;
+      return chunkIndex * itemsPerChunk + itemIndex + 1;
+    }
+  );
+
+  /**
+   * Verifica se todos os argumentos são verdadeiros (operador lógico AND)
+   */
+  Handlebars.registerHelper("and", function () {
+    return Array.prototype.slice.call(arguments, 0, -1).every(Boolean);
+  });
+
+  /**
+   * Negação lógica - retorna o oposto booleano do valor fornecido
+   */
+  Handlebars.registerHelper("not", function (value: any) {
+    return !value;
+  });
+
+  /**
+   * Implementa a lógica condicional "unless" (a menos que)
+   */
+  Handlebars.registerHelper(
+    "unless",
+    function (
+      this: HandlebarsHelperThis,
+      conditional: boolean,
+      options: HandlebarsOptions
+    ) {
+      if (!conditional) {
+        return options.fn(this);
+      } else {
+        return options.inverse(this);
+      }
+    }
+  );
+
+  /**
+   * Verifica se o primeiro valor é menor ou igual ao segundo (<=)
+   */
+  Handlebars.registerHelper("lte", function (a: number, b: number) {
+    return a <= b;
+  });
+
+  /**
+   * Verifica se o primeiro valor é maior que o segundo (>)
+   */
+  Handlebars.registerHelper("gt", function (a: number, b: number) {
+    return a > b;
+  });
+
+  /**
+   * Verifica se o primeiro valor é maior ou igual ao segundo (>=)
+   */
+  Handlebars.registerHelper("gte", function (a: number, b: number) {
+    return a >= b;
+  });
+
+  /**
+   * Verifica se dois valores são estritamente iguais (===)
+   */
+  Handlebars.registerHelper("eq", function (a: any, b: any) {
+    return a === b;
+  });
+
+  /**
+   * Verifica se pelo menos um dos argumentos é verdadeiro (operador lógico OR)
+   */
+  Handlebars.registerHelper("or", function () {
+    return Array.prototype.slice.call(arguments, 0, -1).some(Boolean);
+  });
+
+  /**
+   * Retorna o comprimento do último array em um array de arrays
+   */
+  Handlebars.registerHelper("last", function (array: any[][]) {
+    if (!Array.isArray(array) || array.length === 0) {
+      return 0;
+    }
+    const lastArray = array[array.length - 1];
+    return Array.isArray(lastArray) ? lastArray.length : 0;
+  });
+
+  /**
+   * Verifica se dois valores são iguais (com coerção de tipo, ==)
+   */
+  Handlebars.registerHelper(
+    "ifEquals",
+    function (
+      this: HandlebarsHelperThis,
+      arg1: any,
+      arg2: any,
+      options: HandlebarsOptions
+    ) {
+      return arg1 == arg2 ? options.fn(this) : options.inverse(this);
+    }
+  );
+
+  /**
+   * Formata uma string separada por ponto-e-vírgula em uma lista HTML
+   */
+  Handlebars.registerHelper("formatString", function (string: string) {
+    if (!string) {
+      return new Handlebars.SafeString("");
+    }
+
+    const lines = string
+      .split(";")
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0);
+
+    const formattedLines = lines.map((line) => {
+      return "<li>" + Handlebars.escapeExpression(line) + "</li>";
+    });
+
+    return new Handlebars.SafeString(
+      "<ul>" + formattedLines.join("") + "</ul>"
+    );
+  });
+}
 
 /**
  * Verifica se o caminho do arquivo é seguro para evitar directory traversal
@@ -305,6 +330,9 @@ export async function renderTemplate(
   templateName: string,
   data: any
 ): Promise<string> {
+  // Inicializar Handlebars dinamicamente
+  const HandlebarsInstance = await initHandlebars();
+
   const templatePath = path.join(
     process.cwd(),
     "views",
@@ -319,7 +347,7 @@ export async function renderTemplate(
   }
 
   const templateContent = await fs.readFile(templatePath, "utf-8");
-  const template = Handlebars.compile(templateContent);
+  const template = HandlebarsInstance.compile(templateContent);
   return template(data);
 }
 

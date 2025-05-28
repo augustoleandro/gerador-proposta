@@ -986,27 +986,11 @@ export async function getProposalById(id: string): Promise<Proposal> {
 }
 
 /**
- * Função de atualização de itens de pedido com transação
- * =====================================================
+ * Função de atualização de itens de pedido
+ * =======================================
  *
- * Esta função utiliza o conceito de transações SQL para garantir atomicidade na
- * operação de atualização de itens de um pedido. Uma transação garante que ou
- * todas as operações são concluídas com sucesso, ou nenhuma alteração é feita
- * no banco de dados (tudo ou nada).
- *
- * Problema que resolve:
- * --------------------
- * Ao atualizar itens de um pedido, é comum excluir todos os itens antigos e depois
- * inserir os novos. Isso cria uma janela de vulnerabilidade onde, se algo falhar
- * após a exclusão mas antes da inserção completa, o pedido ficaria sem itens.
- *
- * Como funciona:
- * -------------
- * 1. Inicia uma transação SQL via RPC (Remote Procedure Call)
- * 2. Exclui todos os itens antigos do pedido especificado
- * 3. Insere todos os novos itens
- * 4. Se tudo ocorrer sem erros, confirma (commit) as alterações
- * 5. Se qualquer erro ocorrer, reverte (rollback) todas as alterações
+ * Esta função atualiza os itens de um pedido excluindo todos os itens antigos
+ * e inserindo os novos. O Supabase garante atomicidade em operações individuais.
  *
  * @param supabase - Cliente de conexão com o Supabase
  * @param orderId - Identificador único do pedido
@@ -1019,13 +1003,6 @@ async function updateOrderItemsWithTransaction(
   orderId: string,
   items: any[]
 ) {
-  // Inicia uma transação no banco de dados
-  const { error } = await supabase.rpc("begin_transaction");
-  if (error)
-    throw new Error(
-      `Erro ao iniciar transação: ${translateError(error.message)}`
-    );
-
   try {
     // 1. Exclui todos os itens existentes do pedido especificado
     const { error: deleteError } = await supabase
@@ -1034,8 +1011,6 @@ async function updateOrderItemsWithTransaction(
       .eq("order_id", orderId);
 
     if (deleteError) {
-      // Cancela a transação em caso de erro, revertendo qualquer alteração feita
-      await supabase.rpc("rollback_transaction");
       throw new Error(
         `Erro ao deletar itens existentes: ${translateError(
           deleteError.message
@@ -1043,37 +1018,31 @@ async function updateOrderItemsWithTransaction(
       );
     }
 
-    // 2. Insere os novos itens para o pedido
-    for (const item of items) {
-      const { error: itemError } = await supabase.from("order_items").insert({
+    // 2. Se houver itens para inserir, faz a inserção em batch
+    if (items.length > 0) {
+      const itemsToInsert = items.map((item) => ({
         order_id: orderId,
         name: item.name,
         quantity: item.quantity,
         value: item.value,
-      });
+      }));
 
-      if (itemError) {
-        // Cancela a transação em caso de erro, revertendo qualquer alteração feita
-        await supabase.rpc("rollback_transaction");
+      const { error: insertError } = await supabase
+        .from("order_items")
+        .insert(itemsToInsert);
+
+      if (insertError) {
         throw new Error(
-          `Erro ao inserir item do pedido: ${translateError(itemError.message)}`
+          `Erro ao inserir itens do pedido: ${translateError(
+            insertError.message
+          )}`
         );
       }
     }
 
-    // 3. Finaliza a transação, confirmando todas as alterações no banco
-    const { error: commitError } = await supabase.rpc("commit_transaction");
-    if (commitError) {
-      await supabase.rpc("rollback_transaction");
-      throw new Error(
-        `Erro ao finalizar transação: ${translateError(commitError.message)}`
-      );
-    }
-
     return { success: true };
   } catch (error) {
-    // Garante que a transação seja revertida em qualquer erro não tratado específicamente acima
-    await supabase.rpc("rollback_transaction");
+    console.error("Erro na atualização de itens:", error);
     throw error;
   }
 }

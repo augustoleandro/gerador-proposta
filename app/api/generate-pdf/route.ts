@@ -5,10 +5,8 @@ import { generatePDF, loadCSS, renderTemplate } from "@/lib/pdfUtils";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
-  //console.log("Recebendo requisição para gerar PDF");
   try {
     const templateData = await request.json();
-    //console.log("Dados recebidos:", JSON.stringify(templateData, null, 2));
 
     const css = await loadCSS();
     let html = await renderTemplate("proposal", templateData);
@@ -26,7 +24,7 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
-    console.error("Erro detalhado ao gerar PDF:", error);
+    console.error("Erro ao gerar PDF:", error);
     return NextResponse.json(
       { error: "Erro ao gerar PDF", details: error },
       { status: 500 }
