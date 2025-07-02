@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { FormLabel } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import SelectEditable from "@/components/ui/selectEditable";
 import { toast } from "@/components/ui/use-toast";
 import { OrdersTitles } from "@/lib/options";
@@ -40,19 +41,20 @@ export function NewOrderDialog({
   //const [category, setCategory] = useState<Category>("AUT");
   const [items, setItems] = useState<OrderItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [serviceDescription, setServiceDescription] = useState("Instalação; Configuração; Treinamento");
 
   const handleSave = () => {
-    const service_description = "Serviço";
     onSave({
       order_number,
       value,
       description,
       items,
-      service_description,
+      service_description: serviceDescription,
     });
     setOpen(false);
     setValue(0.0);
     setDescription("");
+    setServiceDescription("Instalação; Configuração; Treinamento");
     resetOrderNumber();
     toast({
       variant: "success",
@@ -164,9 +166,22 @@ export function NewOrderDialog({
                 onChange={setDescription}
               />
             </div>
+            <div className="flex flex-col gap-2">
+              <FormLabel htmlFor="serviceDescription">Descrição do Serviço</FormLabel>
+              <Textarea
+                id="serviceDescription"
+                placeholder="Exemplo: Instalação; Configuração; Treinamento"
+                value={serviceDescription}
+                onChange={(e) => setServiceDescription(e.target.value)}
+                rows={3}
+              />
+              <small className="text-gray-500">
+                Separe os itens com ponto e vírgula (;) para criar uma lista
+              </small>
+            </div>
           </div>
           <DialogFooter>
-            <Button onClick={handleSave} disabled={!value || !description}>
+            <Button onClick={handleSave} disabled={!value || !description || !serviceDescription}>
               Salvar
             </Button>
           </DialogFooter>
