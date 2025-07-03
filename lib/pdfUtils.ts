@@ -306,7 +306,6 @@ function registerAllHelpers() {
       "<ul>" + formattedLines.join("") + "</ul>"
     );
   });
-
 }
 
 /**

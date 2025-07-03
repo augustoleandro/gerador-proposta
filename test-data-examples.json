@@ -1,0 +1,391 @@
+{
+  "testCase1": {
+    "name": "Teste - 10 itens (Descrição na mesma página)",
+    "data": {
+      "customer_name": "TESTE - Cliente com 10 Itens",
+      "proposal_date": "2024-01-15T10:00:00.000Z",
+      "doc_revision": "01",
+      "project_type": "Automação Residencial - Teste 10 Itens",
+      "proposal_total_value": 15000.0,
+      "payment_condition": "30% na assinatura do contrato, 40% no início da instalação, 30% na conclusão",
+      "execution_time": "20 dias úteis após aprovação do projeto",
+      "showItemValues": "true",
+      "orders": [
+        {
+          "description": "Sistema de Automação - 10 Itens",
+          "value": 15000.0,
+          "service_description": "Instalação completa do sistema de automação; Configuração de todos os dispositivos; Programação de cenários personalizados; Treinamento completo dos usuários; Suporte técnico por 12 meses",
+          "items": [
+            {
+              "name": "Central de Automação Intelbras",
+              "quantity": 1,
+              "value": 2500.0
+            },
+            { "name": "Módulo Dimmer WiFi", "quantity": 4, "value": 180.0 },
+            { "name": "Módulo Relé WiFi", "quantity": 3, "value": 120.0 },
+            { "name": "Sensor de Presença", "quantity": 6, "value": 85.0 },
+            { "name": "Sensor de Porta/Janela", "quantity": 8, "value": 45.0 },
+            { "name": "Câmera IP 4MP", "quantity": 4, "value": 320.0 },
+            { "name": "Fechadura Digital", "quantity": 2, "value": 890.0 },
+            {
+              "name": "Tablet de Controle 10\"",
+              "quantity": 1,
+              "value": 1200.0
+            },
+            { "name": "Roteador WiFi 6", "quantity": 1, "value": 450.0 },
+            { "name": "Cabeamento Estruturado", "quantity": 1, "value": 800.0 }
+          ]
+        }
+      ]
+    }
+  },
+  "testCase2": {
+    "name": "Teste - 15 itens (Descrição em página adicional)",
+    "data": {
+      "customer_name": "TESTE - Cliente com 15 Itens",
+      "proposal_date": "2024-01-15T10:00:00.000Z",
+      "doc_revision": "01",
+      "project_type": "Automação Completa - Teste 15 Itens",
+      "proposal_total_value": 28000.0,
+      "payment_condition": "30% na assinatura do contrato, 40% no início da instalação, 30% na conclusão",
+      "execution_time": "25 dias úteis após aprovação do projeto",
+      "showItemValues": "true",
+      "orders": [
+        {
+          "description": "Sistema de Automação Avançado - 15 Itens",
+          "value": 28000.0,
+          "service_description": "Esta é uma descrição mais detalhada para testar página adicional; Instalação completa do sistema de automação residencial; Configuração avançada de todos os dispositivos; Programação de cenários personalizados e complexos; Integração com assistentes de voz; Treinamento completo dos usuários; Documentação técnica completa; Suporte técnico por 24 meses",
+          "items": [
+            {
+              "name": "Central de Automação Premium",
+              "quantity": 1,
+              "value": 4500.0
+            },
+            { "name": "Módulo Dimmer WiFi", "quantity": 6, "value": 180.0 },
+            { "name": "Módulo Relé WiFi", "quantity": 5, "value": 120.0 },
+            {
+              "name": "Sensor de Presença Inteligente",
+              "quantity": 8,
+              "value": 125.0
+            },
+            {
+              "name": "Sensor de Porta/Janela Premium",
+              "quantity": 10,
+              "value": 65.0
+            },
+            { "name": "Câmera IP 4K", "quantity": 6, "value": 480.0 },
+            {
+              "name": "Fechadura Digital Biométrica",
+              "quantity": 3,
+              "value": 1200.0
+            },
+            {
+              "name": "Tablet de Controle 12\"",
+              "quantity": 2,
+              "value": 1500.0
+            },
+            { "name": "Smart TV 55\"", "quantity": 1, "value": 2800.0 },
+            {
+              "name": "Sistema de Som Ambiente",
+              "quantity": 1,
+              "value": 3200.0
+            },
+            { "name": "Roteador WiFi 6E", "quantity": 1, "value": 650.0 },
+            {
+              "name": "Switch Gerenciável 24 Portas",
+              "quantity": 1,
+              "value": 890.0
+            },
+            {
+              "name": "Cabeamento Estruturado Cat6A",
+              "quantity": 1,
+              "value": 1500.0
+            },
+            { "name": "Rack de Comunicação", "quantity": 1, "value": 780.0 },
+            { "name": "UPS 2200VA", "quantity": 1, "value": 1200.0 }
+          ]
+        }
+      ]
+    }
+  },
+  "testCase3": {
+    "name": "Teste - 20 itens (Descrição em página adicional)",
+    "data": {
+      "customer_name": "TESTE - Cliente com 20 Itens",
+      "proposal_date": "2024-01-15T10:00:00.000Z",
+      "doc_revision": "01",
+      "project_type": "Automação Empresarial - Teste 20 Itens",
+      "proposal_total_value": 45000.0,
+      "payment_condition": "20% na assinatura, 30% no início, 30% no meio, 20% na conclusão",
+      "execution_time": "45 dias úteis após aprovação do projeto",
+      "showItemValues": "true",
+      "orders": [
+        {
+          "description": "Solução Completa de Automação Empresarial - 20 Itens",
+          "value": 45000.0,
+          "service_description": "Solução completa de automação para ambiente empresarial; Instalação e configuração de sistema integrado; Programação de automações complexas; Integração com sistema de gestão predial; Configuração de controle de acesso; Sistema de monitoramento 24/7; Treinamento da equipe técnica; Documentação técnica completa; Garantia estendida de 36 meses; Suporte técnico prioritário",
+          "items": [
+            {
+              "name": "Servidor de Automação Industrial",
+              "quantity": 1,
+              "value": 8500.0
+            },
+            {
+              "name": "Central de Controle Touchscreen 15\"",
+              "quantity": 3,
+              "value": 2200.0
+            },
+            {
+              "name": "Módulo I/O Digital 16 Canais",
+              "quantity": 4,
+              "value": 450.0
+            },
+            {
+              "name": "Módulo Analógico 8 Canais",
+              "quantity": 2,
+              "value": 680.0
+            },
+            {
+              "name": "Sensor de Temperatura/Umidade",
+              "quantity": 8,
+              "value": 95.0
+            },
+            { "name": "Sensor de Luminosidade", "quantity": 6, "value": 75.0 },
+            { "name": "Atuador para Persiana", "quantity": 12, "value": 320.0 },
+            {
+              "name": "Controlador de Ar Condicionado",
+              "quantity": 8,
+              "value": 280.0
+            },
+            { "name": "Câmera IP PTZ 4K", "quantity": 6, "value": 1200.0 },
+            { "name": "Leitor de Cartão RFID", "quantity": 5, "value": 180.0 },
+            { "name": "Fechadura Magnética", "quantity": 8, "value": 350.0 },
+            { "name": "Central de Alarme", "quantity": 1, "value": 1800.0 },
+            { "name": "Sirene Inteligente", "quantity": 4, "value": 220.0 },
+            {
+              "name": "Switch Industrial 48 Portas",
+              "quantity": 1,
+              "value": 2400.0
+            },
+            { "name": "Firewall Corporativo", "quantity": 1, "value": 3200.0 },
+            { "name": "Servidor de Backup", "quantity": 1, "value": 4500.0 },
+            { "name": "Rack 42U", "quantity": 1, "value": 1200.0 },
+            { "name": "UPS 5000VA", "quantity": 1, "value": 3800.0 },
+            {
+              "name": "Cabeamento Fibra Óptica",
+              "quantity": 1,
+              "value": 2500.0
+            },
+            {
+              "name": "Software de Gerenciamento",
+              "quantity": 1,
+              "value": 5200.0
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "testCase4": {
+    "name": "Teste - Múltiplas soluções (10, 16, 22 itens)",
+    "data": {
+      "customer_name": "TESTE - Cliente Multi-Soluções",
+      "proposal_date": "2024-01-15T10:00:00.000Z",
+      "doc_revision": "01",
+      "project_type": "Projeto Integrado Multi-Ambientes",
+      "proposal_total_value": 85000.0,
+      "payment_condition": "25% na assinatura, 25% início fase 1, 25% início fase 2, 25% conclusão",
+      "execution_time": "60 dias úteis divididos em 3 fases",
+      "showItemValues": "true",
+      "orders": [
+        {
+          "description": "FASE 1 - Automação Residencial (10 itens)",
+          "value": 25000.0,
+          "service_description": "Primeira fase do projeto focada na automação residencial; Instalação de sistema básico; Configuração inicial; Testes de funcionamento",
+          "items": [
+            { "name": "Central Residencial", "quantity": 1, "value": 3000.0 },
+            { "name": "Módulo Dimmer", "quantity": 6, "value": 200.0 },
+            { "name": "Módulo Relé", "quantity": 4, "value": 150.0 },
+            { "name": "Sensor PIR", "quantity": 8, "value": 90.0 },
+            { "name": "Sensor Magnético", "quantity": 10, "value": 50.0 },
+            { "name": "Câmera Dome", "quantity": 4, "value": 400.0 },
+            { "name": "Fechadura Digital", "quantity": 2, "value": 800.0 },
+            { "name": "Tablet Controle", "quantity": 1, "value": 1200.0 },
+            { "name": "Roteador WiFi", "quantity": 1, "value": 500.0 },
+            { "name": "Cabeamento Cat6", "quantity": 1, "value": 1000.0 }
+          ]
+        },
+        {
+          "description": "FASE 2 - Sistema Comercial (16 itens)",
+          "value": 35000.0,
+          "service_description": "Segunda fase dedicada ao ambiente comercial; Sistema mais robusto; Integração com sistema residencial; Controles avançados; Monitoramento centralizado",
+          "items": [
+            { "name": "Servidor Comercial", "quantity": 1, "value": 6000.0 },
+            {
+              "name": "Painel Touchscreen 12\"",
+              "quantity": 2,
+              "value": 1800.0
+            },
+            { "name": "Módulo I/O 32 Canais", "quantity": 3, "value": 600.0 },
+            { "name": "Controlador HVAC", "quantity": 4, "value": 450.0 },
+            { "name": "Sensor Temperatura", "quantity": 8, "value": 120.0 },
+            { "name": "Sensor Luminosidade", "quantity": 6, "value": 80.0 },
+            { "name": "Atuador Persiana", "quantity": 10, "value": 350.0 },
+            { "name": "Câmera PTZ", "quantity": 4, "value": 1100.0 },
+            { "name": "DVR 16 Canais", "quantity": 1, "value": 2200.0 },
+            { "name": "Controle Acesso", "quantity": 6, "value": 250.0 },
+            {
+              "name": "Fechadura Eletromagnética",
+              "quantity": 4,
+              "value": 400.0
+            },
+            { "name": "Central Alarme", "quantity": 1, "value": 1500.0 },
+            { "name": "Switch Gerenciável", "quantity": 1, "value": 1200.0 },
+            { "name": "Rack 19\"", "quantity": 1, "value": 800.0 },
+            { "name": "UPS 3000VA", "quantity": 1, "value": 2500.0 },
+            { "name": "Fibra Óptica", "quantity": 1, "value": 1800.0 }
+          ]
+        },
+        {
+          "description": "FASE 3 - Integração Completa (22 itens)",
+          "value": 25000.0,
+          "service_description": "Fase final de integração e otimização; Conectividade total entre todos os sistemas; Configurações avançadas; Interface unificada; Automações inteligentes; Relatórios e análises; Treinamento avançado da equipe; Suporte técnico estendido",
+          "items": [
+            { "name": "Servidor Principal", "quantity": 1, "value": 8000.0 },
+            { "name": "Estação de Trabalho", "quantity": 2, "value": 3500.0 },
+            { "name": "Monitor 32\" 4K", "quantity": 3, "value": 1200.0 },
+            { "name": "Switch Core 48 Portas", "quantity": 1, "value": 2800.0 },
+            { "name": "Firewall Next-Gen", "quantity": 1, "value": 4200.0 },
+            { "name": "Access Point WiFi 6", "quantity": 8, "value": 380.0 },
+            { "name": "Gateway IoT", "quantity": 2, "value": 650.0 },
+            { "name": "Sensor Multifuncional", "quantity": 15, "value": 180.0 },
+            { "name": "Atuador Universal", "quantity": 12, "value": 220.0 },
+            { "name": "Câmera Térmica", "quantity": 2, "value": 2800.0 },
+            { "name": "Sistema de Som", "quantity": 1, "value": 3500.0 },
+            { "name": "Projetor 4K", "quantity": 1, "value": 4500.0 },
+            { "name": "Tela Motorizada", "quantity": 1, "value": 1800.0 },
+            { "name": "Central Telefônica IP", "quantity": 1, "value": 2200.0 },
+            { "name": "Storage NAS", "quantity": 1, "value": 3200.0 },
+            { "name": "Backup Battery", "quantity": 2, "value": 1500.0 },
+            { "name": "Painel Solar", "quantity": 4, "value": 1200.0 },
+            { "name": "Inversor Solar", "quantity": 1, "value": 2800.0 },
+            { "name": "Medidor Inteligente", "quantity": 3, "value": 450.0 },
+            { "name": "Software Integração", "quantity": 1, "value": 6500.0 },
+            { "name": "Licenças Advanced", "quantity": 5, "value": 800.0 },
+            {
+              "name": "Consultoria Especializada",
+              "quantity": 40,
+              "value": 150.0
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "case_14_items": {
+    "customer_name": "Cliente 14 Itens",
+    "proposal_date": "2024-01-15",
+    "doc_revision": "R01",
+    "project_type": "Automação Residencial",
+    "proposal_total_value": 50000,
+    "payment_condition": "Entrada + 02 (duas parcelas) iguais",
+    "execution_time": "60 dias após liberação pela obra",
+    "showItemValues": "false",
+    "orders": [
+      {
+        "description": "Solução de Automação - 14 Itens",
+        "value": 50000,
+        "service_description": "Instalação completa do sistema de automação; Configuração de todos os dispositivos; Treinamento de uso para usuários finais",
+        "items": [
+          { "name": "INTERRUPTOR ESSENTIAL 1", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 2", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 3", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 4", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 5", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 6", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 7", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 8", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 9", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 10", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 11", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 12", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 13", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 14", "quantity": 1, "value": 500 }
+        ]
+      }
+    ]
+  },
+  "case_15_items": {
+    "customer_name": "Cliente 15 Itens",
+    "proposal_date": "2024-01-15",
+    "doc_revision": "R01",
+    "project_type": "Automação Residencial",
+    "proposal_total_value": 55000,
+    "payment_condition": "Entrada + 02 (duas parcelas) iguais",
+    "execution_time": "60 dias após liberação pela obra",
+    "showItemValues": "false",
+    "orders": [
+      {
+        "description": "Solução de Automação - 15 Itens",
+        "value": 55000,
+        "service_description": "Instalação completa do sistema de automação; Configuração de todos os dispositivos; Treinamento de uso para usuários finais",
+        "items": [
+          { "name": "INTERRUPTOR ESSENTIAL 1", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 2", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 3", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 4", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 5", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 6", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 7", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 8", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 9", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 10", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 11", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 12", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 13", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 14", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 15", "quantity": 1, "value": 500 }
+        ]
+      }
+    ]
+  },
+  "case_20_items": {
+    "customer_name": "Cliente 20 Itens",
+    "proposal_date": "2024-01-15",
+    "doc_revision": "R01",
+    "project_type": "Automação Residencial",
+    "proposal_total_value": 75000,
+    "payment_condition": "Entrada + 02 (duas parcelas) iguais",
+    "execution_time": "60 dias após liberação pela obra",
+    "showItemValues": "false",
+    "orders": [
+      {
+        "description": "Solução de Automação - 20 Itens",
+        "value": 75000,
+        "service_description": "Instalação completa do sistema de automação; Configuração de todos os dispositivos; Treinamento de uso para usuários finais",
+        "items": [
+          { "name": "INTERRUPTOR ESSENTIAL 1", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 2", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 3", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 4", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 5", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 6", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 7", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 8", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 9", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 10", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 11", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 12", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 13", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 14", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 15", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 16", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 17", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 18", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 19", "quantity": 1, "value": 500 },
+          { "name": "INTERRUPTOR ESSENTIAL 20", "quantity": 1, "value": 500 }
+        ]
+      }
+    ]
+  }
+}

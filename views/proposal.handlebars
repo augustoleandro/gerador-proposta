@@ -915,27 +915,39 @@
             </table>
 
             {{!-- 
-              Lógica melhorada para posicionamento do valor total da solução:
-              - ≤15 itens na última página: mostra valor + descrição do serviço
-              - 16-17 itens na última página: mostra apenas valor  
-              - ≥18 itens na última página: não mostra nada (vai para página adicional)
+              Lógica corrigida:
+              - Valor SEMPRE aparece no final da tabela (qualquer quantidade de itens)
+              - Descrição na mesma página apenas para ≤14 itens
+              - Para >14 itens, descrição vai para página adicional
             --}}
             {{#if @last}}
-              {{#if (lte this.length 15)}}
-                <p style="width: 100%; text-align: right; font-weight: bold; margin-top: 24px;">
-                  Valor da Solução: {{formatCurrency order.value}}
-                </p>
-                {{!-- Descrição do serviço é opcional e só aparece quando há espaço suficiente --}}
+              {{!-- Valor sempre aparece no final da tabela --}}
+              <p style="width: 100%; text-align: right; font-weight: bold; margin-top: 24px;">
+                Valor da Solução: {{formatCurrency order.value}}
+              </p>
+              
+              {{!-- Para 14 itens ou menos, sempre tenta mostrar a descrição na mesma página --}}
+              {{#if (lte order.items.length 14)}}
                 {{#if order.service_description}}
                   <div style="margin-top: 20px;">
                     <span style="font-weight: bold">Serviço (instalação, configuração e treinamento) da solução acima:</span>   
                     {{formatString order.service_description}}
                   </div>
                 {{/if}}
-              {{else if (lte this.length 17)}}
-                <p style="width: 100%; text-align: right; font-weight: bold; margin-top: 24px;">
-                  Valor da Solução: {{formatCurrency order.value}}
-                </p>
+              {{/if}}
+              
+              {{!-- Para mais de 20 itens, sempre mostra a descrição na última página da tabela --}}
+              {{#if (gt order.items.length 20)}}
+                {{#if order.service_description}}
+                  <div style="margin-top: 20px;">
+                    <span style="font-weight: bold">Serviço (instalação, configuração e treinamento) da solução acima:</span>   
+                    {{formatString order.service_description}}
+                  </div>
+                {{else}}
+                  <div style="margin-top: 20px;">
+                    <span style="font-weight: bold">Serviço (instalação, configuração e treinamento) da solução acima conforme especificações técnicas.</span>
+                  </div>
+                {{/if}}
               {{/if}}
             {{/if}}
           </div>
@@ -977,43 +989,31 @@
     {{/each}}
 
     {{!-- 
-      PÁGINA ADICIONAL DE VALOR (se necessário)
+      PÁGINA ADICIONAL PARA DESCRIÇÃO
       
-      Criada automaticamente quando a última página tem ≥18 itens.
-      Contém apenas o valor da solução e descrição do serviço.
-      
-      Condições melhoradas:
-      - Se última página tem 18+ itens: sempre cria página adicional
-      - Se não há descrição de serviço e última página tem 16-17 itens: também cria página adicional para melhor visual
+      Lógica correta:
+      - ≤14 itens: descrição na tabela (não precisa de página adicional)
+      - 15-20 itens: descrição em página adicional
+      - >20 itens: descrição na última página da tabela (não precisa de página adicional)
     --}}
-    {{#if (or (gte this.length 18) (and (gte this.length 16) (not order.service_description)))}}
+    {{#if (and (gt order.items.length 14) (lte order.items.length 20))}}
+      {{!-- Página adicional apenas para 15-20 itens --}}
       <div class="page">
         <div class="page-header">
           <img src="https://cnxfzvkctgksepdayrpg.supabase.co/storage/v1/object/sign/files/images/logo_horizontal.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJmaWxlcy9pbWFnZXMvbG9nb19ob3Jpem9udGFsLnBuZyIsImlhdCI6MTcyNjY2NTE2MCwiZXhwIjoxODg0MzQ1MTYwfQ.y4eOkMnXn_QnDdCkyE7nB8W0UMJN_P06Z--IHosJAp0&t=2024-09-18T13%3A12%3A40.846Z" alt="Logo Automatize" />
           <span class="page-number"></span>
         </div>
         
-        <div class="page-content" style="display: flex; flex-direction: column; justify-content: center; min-height: 500px;">
-          {{!-- Valor total da solução com destaque visual --}}
-          <div style="text-align: center; margin-bottom: 40px;">
-            <p style="font-size: 24px; font-weight: bold; color: #333; margin-bottom: 8px;">
-              Valor da Solução
-            </p>
-            <p style="font-size: 32px; font-weight: bold; color: #000;">
-              {{formatCurrency order.value}}
-            </p>
-          </div>
-          
-          {{!-- Descrição do serviço (opcional) com melhor formatação --}}
+        <div class="page-content">
+          {{!-- Descrição do serviço --}}
           {{#if order.service_description}}
-            <div style="margin-top: 40px; padding: 24px; background-color: #f8f9fa; border-left: 4px solid #007bff; border-radius: 4px;">
-              <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 16px; color: #333;">
-                Serviço Incluso
-              </h3>
-              <p style="font-size: 16px; line-height: 1.6; color: #555; margin: 0;">
-                <strong>Instalação, configuração e treinamento:</strong><br>
-                {{formatString order.service_description}}
-              </p>
+            <div style="margin-top: 32px;">
+              <span style="font-weight: bold;">Serviço (instalação, configuração e treinamento) da solução acima:</span>   
+              {{formatString order.service_description}}
+            </div>
+          {{else}}
+            <div style="margin-top: 32px;">
+              <span style="font-weight: bold;">Serviço (instalação, configuração e treinamento) da solução acima conforme especificações técnicas.</span>
             </div>
           {{/if}}
         </div>
@@ -1052,6 +1052,8 @@
         </div>
       </div>
     {{/if}}
+
+
   {{/with}}
 {{/each}}
 
