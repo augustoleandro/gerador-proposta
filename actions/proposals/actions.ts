@@ -205,7 +205,8 @@ export async function createProposal(data: FormData) {
     }
 
     // Save orders
-    for (const order of proposalData.orders) {
+    for (let index = 0; index < proposalData.orders.length; index++) {
+      const order = proposalData.orders[index];
       const { data: savedOrder, error: orderError } = await supabase
         .from("orders")
         .insert([
@@ -215,6 +216,7 @@ export async function createProposal(data: FormData) {
             description: order.description,
             value: order.value,
             service_description: order.service_description,
+            position: index,
           },
         ])
         .select()
@@ -499,7 +501,8 @@ export async function editProposal(id: string, data: FormData) {
       }
     }
 
-    for (const order of proposalData.orders) {
+    for (let index = 0; index < proposalData.orders.length; index++) {
+      const order = proposalData.orders[index];
       const { data: existingOrder, error: checkError } = await supabase
         .from("orders")
         .select("id")
@@ -527,6 +530,7 @@ export async function editProposal(id: string, data: FormData) {
               description: order.description,
               value: order.value,
               service_description: order.service_description,
+              position: index,
             },
           ])
           .select()
@@ -565,6 +569,7 @@ export async function editProposal(id: string, data: FormData) {
             description: order.description,
             value: order.value,
             service_description: order.service_description,
+            position: index,
           })
           .eq("id", existingOrder.id)
           .select()
@@ -962,7 +967,8 @@ export async function getProposalById(id: string): Promise<Proposal> {
       items:order_items(*)
     `
       )
-      .eq("proposal_id", id);
+      .eq("proposal_id", id)
+      .order("position", { ascending: true });
 
     if (ordersError) {
       throw new Error("Error fetching orders");
